@@ -65,7 +65,7 @@ function isMoveValid(
 function getSameTilesUp(position: Position, board: Board): Array<Position> {
   let result: Array<Position> = []
   const tile = board[position.x][position.y]
-  for (let y = position.y - 1; y > 0; y--) {
+  for (let y = position.y - 1; y >= 0; y--) {
     if (board[position.x][y].value != tile.value) {
       break
     }
@@ -88,7 +88,7 @@ function getSameTilesDown(position: Position, board: Board): Array<Position> {
 function getSameTilesLeft(position: Position, board: Board): Array<Position> {
   let result: Array<Position> = []
   const tile = board[position.x][position.y]
-  for (let x = position.x - 1; x > 0; x--) {
+  for (let x = position.x - 1; x >= 0; x--) {
     // Adjust boundary check to >= 0
     if (board[x][position.y].value != tile.value) {
       break
@@ -114,18 +114,28 @@ function getTileValue(
   position: Position,
   board: Board,
 ): { value: number; matchedTiles: Array<Position> } {
-  console.log("getTileValue called")
   const tile = board[position.x][position.y]
 
   const tilesUp = getSameTilesUp(position, board)
   const tilesDown = getSameTilesDown(position, board)
   const tilesLeft = getSameTilesLeft(position, board)
   const tilesRight = getSameTilesRight(position, board)
-  // console.log({ position, tilesUp, tilesDown, tilesLeft, tilesRight })
-  const points =
-    tilesUp.length + tilesDown.length + tilesLeft.length + tilesRight.length
-  if (points < 2) {
-    return { value: tile.value, matchedTiles: [] }
+
+  const tilesVertical = tilesUp.length + tilesDown.length
+  const tilesHorizontal = tilesLeft.length + tilesRight.length
+  let matchedTiles: Position[] = []
+
+  // Match only counts if there are at least 3 in a row
+  // If there's a match with 2 vertical and 1 horizontal, only the vertical should count
+  if (tilesVertical >= 2) {
+    matchedTiles = [...matchedTiles, ...tilesUp, ...tilesDown]
+  }
+  if (tilesHorizontal >= 2) {
+    matchedTiles = [...matchedTiles, ...tilesRight, ...tilesLeft]
+  }
+  const points = matchedTiles.length
+  if (points == 0) {
+    return { value: tile.value, matchedTiles }
   }
   return {
     value: tile.value + points - 1,
@@ -137,14 +147,15 @@ function getTileValue(
  * The main thing. Returns a list of boards to be animated through
  */
 function swapTile(from: Position, to: Position, board: Board): Board[] {
-  const newBoard = copyBoard(board)
-  newBoard[to.x][to.y] = board[from.x][from.y]
-  newBoard[from.x][from.y] = board[to.x][to.y]
-  if (!isMoveValid(from, to, board, newBoard)) {
+  const swappedBoard = copyBoard(board)
+  swappedBoard[to.x][to.y] = board[from.x][from.y]
+  swappedBoard[from.x][from.y] = board[to.x][to.y]
+  if (!isMoveValid(from, to, board, swappedBoard)) {
     console.log("move not valid")
     // Animate to the swapped board, then back again
-    return [newBoard, board]
+    return [swappedBoard, board]
   }
+  const newBoard = copyBoard(swappedBoard)
   const fromNewValue = getTileValue(from, newBoard)
   const toNewValue = getTileValue(to, newBoard)
   newBoard[from.x][from.y] = {
@@ -161,28 +172,53 @@ function swapTile(from: Position, to: Position, board: Board): Board[] {
     matchedTiles,
     newBoard,
   )
-  return [newBoard, ...newBoardsFromMatchedTiles]
+  return [swappedBoard, ...newBoardsFromMatchedTiles]
 }
 
-function boardFromMatchedTiles(positions: Position[], board: Board): Board[] {
-  const copiedBoard = copyBoard(board)
-  let result = [copiedBoard]
-  for (const position of positions) {
-    copiedBoard[position.x][position.y] = getRandomTile()
-    const newTileValue = getTileValue({ ...position }, copiedBoard)
-    if (newTileValue.matchedTiles.length > 0) {
-      const newBoard = copyBoard(copiedBoard)
-      newBoard[position.x][position.y] = {
-        ...newBoard[position.x][position.y],
-        value: newTileValue.value,
+function boardFromMatchedTiles(
+  matchedTiles: Position[],
+  board: Board,
+): Board[] {
+  let result = [board]
+
+  let positions: Position[] = [...positionsWithMatches(board), ...matchedTiles]
+  positions.sort((a, b) => {
+    const valueA = board[a.x][a.y].value
+    const valueB = board[b.x][b.y].value
+    return valueA - valueB
+  })
+
+  while (positions.length > 0) {
+    const copiedBoard = copyBoard(board)
+    const donePositions: Set<Position> = new Set()
+    for (const position of positions) {
+      if (donePositions.has(position)) {
+        continue
       }
-      result = [
-        ...result,
-        ...boardFromMatchedTiles(newTileValue.matchedTiles, newBoard),
-      ]
+      donePositions.add(position)
+      const tileValue = getTileValue(position, copiedBoard)
+      copiedBoard[position.x][position.y] =
+        tileValue.matchedTiles.length > 0
+          ? { ...copiedBoard[position.x][position.y], value: tileValue.value }
+          : getRandomTile()
     }
+    result = [...result, copiedBoard]
+    positions = positionsWithMatches(copiedBoard)
   }
   return result
+}
+
+function positionsWithMatches(board: Board): Position[] {
+  return board
+    .map((row, x) => {
+      return row.map((_, y) => {
+        return getTileValue({ x, y }, board).matchedTiles.length > 0
+          ? { x, y }
+          : undefined
+      })
+    })
+    .flat()
+    .filter((x) => x != undefined) as Position[]
 }
 
 function getTileColor(tile: Tile) {
