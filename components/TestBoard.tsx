@@ -1,50 +1,37 @@
-"use client";
-import { Board, Position, useBoard } from "@/hooks/useBoard";
-import { motion, AnimatePresence } from "framer-motion";
-import { Fragment, useState } from "react";
-
-export default function Game() {
-  const [animating, setAnimating] = useState(false);
-  const [selectedFrom, setSelectedFrom] = useState<Position | undefined>(
-    undefined,
-  );
-  const [tiles, setTiles] = useState(
-    Array.from({ length: 8 }, (_, i) =>
-      Array.from({ length: 8 }, (_, j) => i * 8 + j),
-    ),
-  );
-
-  function clickTile(position: Position) {
-    if (animating) {
-      return;
-    }
-    if (!selectedFrom) {
-      setSelectedFrom(position);
-      return;
-    }
-    const temp = tiles[position.x][position.y];
-    tiles[position.x][position.y] = tiles[selectedFrom.x][selectedFrom.y];
-    tiles[selectedFrom.x][selectedFrom.y] = temp;
-
-    setSelectedFrom(undefined);
+"use client"
+const GridComponent = () => {
+  const data = [
+    [1, 2, 3, 4, 5, 6, 7, 8],
+    [1, 2, 3, 4, 5, 6, 7, 8],
+    [1, 2, 3, 4, 5, 6, 7, 8],
+    [1, 2, 3, 4, 5, 6, 7, 8],
+    [1, 2, 3, 4, 5, 6, 7, 8],
+    [1, 2, 3, 4, 5, 6, 7, 8],
+    [1, 2, 3, 4, 5, 6, 7, 8],
+    [1, 2, 3, 4, 5, 6, 7, 8],
+  ] as const
+  // Function to handle the click event, taking x and y coordinates as arguments
+  const handleClick = (x: number, y: number) => {
+    console.log(
+      `Clicked on cell at x: ${x}, y: ${y} with a value of ${data[x][y]}`,
+    )
   }
+
   return (
-    <main className="grid w-fit grid-cols-8 grid-rows-8 items-center gap-8 p-24">
-      <AnimatePresence>
-        {tiles.map((row, x) =>
-          row.map((tile, y) => (
-            <motion.button
-              layout="position"
-              transition={{ type: "spring", stiffness: 700, damping: 30 }}
-              key={tile}
-              onClick={(_) => clickTile({ x, y })}
-              className="flex size-12 items-center justify-center rounded bg-white text-black"
-            >
-              {tile}
-            </motion.button>
-          )),
-        )}
-      </AnimatePresence>
-    </main>
-  );
+    <div className="grid grid-cols-8 gap-1">
+      {data.map((row, rowIndex) =>
+        row.map((cell, cellIndex) => (
+          <div
+            key={`${rowIndex}-${cellIndex}`}
+            className="border border-gray-400 p-2 flex justify-center items-center cursor-pointer"
+            onClick={() => handleClick(rowIndex, cellIndex)} // Pass cellIndex as x and rowIndex as y
+          >
+            {cell}
+          </div>
+        )),
+      )}
+    </div>
+  )
 }
+
+export default GridComponent

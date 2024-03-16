@@ -6,7 +6,7 @@ export default function Home() {
     ssr: false,
   })
   return (
-    <div className="flex w-full items-center justify-center h-full">
+    <div className="flex w-full justify-center h-full">
       <Game />
     </div>
   )
