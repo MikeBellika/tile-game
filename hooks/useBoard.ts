@@ -159,7 +159,7 @@ function getTileValue(
   }
   return {
     value: tile.value + points - 1,
-    matchedTiles: [...tilesUp, ...tilesDown, ...tilesRight, ...tilesLeft],
+    matchedTiles: matchedTiles,
     origin: position,
   }
 }
