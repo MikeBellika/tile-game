@@ -7,7 +7,7 @@ import {
   useBoard,
 } from "@/hooks/useBoard"
 import { motion, AnimatePresence, Transition } from "framer-motion"
-import { useState } from "react"
+import { useRef, useState } from "react"
 import Tile from "./Tile"
 
 export default function Game() {
@@ -77,15 +77,32 @@ export default function Game() {
 
   function getExitTo({ x, y }: Position): Position | undefined {
     const tile = board[x][y]
+    if (!grid.current) {
+      return
+    }
+    const gridGap = parseInt(
+      getComputedStyle(grid.current).gap.replace("px", ""),
+    )
+    const tileWidth = parseInt(
+      getComputedStyle(grid.current.children[0]).width.replace("px", ""),
+    )
+    const size = gridGap + tileWidth
     if (!tile.removed) {
       return undefined
     }
-    return { x: (x - tile.mergedTo.x) * -80, y: (y - tile.mergedTo.y) * -80 }
+    return {
+      x: (x - tile.mergedTo.x) * -size,
+      y: (y - tile.mergedTo.y) * -size,
+    }
   }
+  const grid = useRef<HTMLDivElement>(null)
 
   return (
     <div className="flex flex-col">
-      <main className="grid w-fit grid-cols-8 grid-rows-8 items-center gap-4 ">
+      <main
+        className="grid w-fit grid-cols-8 grid-rows-8 items-center gap-1 sm:gap-4"
+        ref={grid}
+      >
         <AnimatePresence mode="popLayout">
           {board.map((row, y) =>
             row.map((_, x) => (
@@ -102,7 +119,9 @@ export default function Game() {
                 }}
                 initial={{ y: -80 }}
                 animate={getExitTo({ x, y }) ?? { y: 0 }}
-                className={`${getExitTo({ x, y }) ? "z-0" : "z-10"}`}
+                className={`size-10 sm:size-14 md:size-16 ${
+                  getExitTo({ x, y }) ? "z-0" : "z-10"
+                }`}
                 // drag
                 // dragConstraints={{ top: 5, left: 5, right: 5, bottom: 5 }}
                 key={board[x][y].id}

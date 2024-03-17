@@ -36,7 +36,7 @@ export default function Tile({
       whileHover={{ scale: 1.2 }}
       transition={{ type: "spring", stiffness: 700, damping: 20 }}
       style={{ background: color }}
-      className={`flex size-16 text-2xl duration-700 transition-colors font-bold items-center justify-center rounded text-black ${
+      className={`flex w-full h-full text-xl md:text-2xl duration-700 transition-colors font-bold items-center justify-center rounded text-black ${
         selected ? "ring ring-yellow-400" : ""
       }`}
       ref={scope}
