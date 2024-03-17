@@ -1,11 +1,6 @@
 import { type Tile } from "@/hooks/useBoard"
-import {
-  AnimatePresence,
-  AnimationSequence,
-  motion,
-  useAnimate,
-} from "framer-motion"
-import { useEffect, useLayoutEffect, useRef } from "react"
+import { AnimationSequence, motion, useAnimate } from "framer-motion"
+import { useEffect, useRef } from "react"
 function usePrevious<T>(value: T) {
   const ref = useRef<T>()
   useEffect(() => {
@@ -31,7 +26,7 @@ export default function Tile({
       return
     }
     const sequence: AnimationSequence = [
-      [scope.current, { scale: 1.3, border: "20px solid white" }],
+      [scope.current, { scale: 1.3, border: "10px solid white" }],
       [scope.current, { scale: 1, border: "none" }],
     ]
     animate(sequence)
@@ -41,7 +36,7 @@ export default function Tile({
       whileHover={{ scale: 1.2 }}
       transition={{ type: "spring", stiffness: 700, damping: 20 }}
       style={{ background: color }}
-      className={`flex size-16 text-2xl duration-500 transition-colors font-bold items-center justify-center rounded text-black ${
+      className={`flex size-16 text-2xl duration-700 transition-colors font-bold items-center justify-center rounded text-black ${
         selected ? "ring ring-yellow-400" : ""
       }`}
       ref={scope}
