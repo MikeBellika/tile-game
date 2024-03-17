@@ -158,41 +158,59 @@ function getMatchedTile(
   }
 }
 
+export type BoardPoints = { board: Board; points: number }
+
 /**
  * The main thing. Returns a list of boards to be animated through
  */
-function swapTile(from: Position, to: Position, board: Board): Board[] {
+function swapTile(from: Position, to: Position, board: Board): BoardPoints[] {
   const swappedBoard = copyBoard(board)
   swappedBoard[to.x][to.y] = board[from.x][from.y]
   swappedBoard[from.x][from.y] = board[to.x][to.y]
   if (!isMoveValid(from, to, swappedBoard)) {
     // Animate to the swapped board, then back again
-    return [swappedBoard, board]
+    return [
+      { board: swappedBoard, points: 0 },
+      { board, points: 0 },
+    ]
   }
   const newBoard = copyBoard(swappedBoard)
   const fromMatchedTile = getMatchedTile(from, newBoard)
   const toMatchedTile = getMatchedTile(to, newBoard)
-  const refactorMe = []
+  const matchedTiles = []
 
   if (fromMatchedTile.match) {
     newBoard[from.x][from.y] = {
       ...newBoard[from.x][from.y],
       value: fromMatchedTile.newValue,
     }
-    refactorMe.push(fromMatchedTile)
+    matchedTiles.push(fromMatchedTile)
   }
   if (toMatchedTile.match) {
     newBoard[to.x][to.y] = {
       ...newBoard[to.x][to.y],
       value: toMatchedTile.newValue,
     }
-    refactorMe.push(toMatchedTile)
+    matchedTiles.push(toMatchedTile)
   }
 
-  const boardAfterGravity = moveTilesDown(refactorMe, newBoard)
+  const boardAfterGravity = moveTilesDown(matchedTiles, newBoard)
   const boardAfterCombos = findAndDoCombos(boardAfterGravity[1])
 
-  return [swappedBoard, newBoard, ...boardAfterGravity, ...boardAfterCombos]
+  return [
+    { board: swappedBoard, points: 0 },
+    {
+      board: newBoard,
+      points: matchedTiles.reduce(
+        (acc, matchedTile) => Math.pow(2, matchedTile.newValue) + acc,
+        0,
+      ),
+    },
+    ...boardAfterGravity.map((b) => {
+      return { board: b, points: 0 }
+    }),
+    ...boardAfterCombos,
+  ]
 }
 
 export function moveTilesDown(
@@ -234,8 +252,8 @@ export function moveTilesDown(
   return [boardWithRemovedTiles, newBoard]
 }
 
-function findAndDoCombos(board: Board): Board[] {
-  let result: Board[] = []
+function findAndDoCombos(board: Board): BoardPoints[] {
+  let result: BoardPoints[] = []
   let matches = uniqueNewMatches(board)
 
   let previousBoard = copyBoard(board)
@@ -249,7 +267,19 @@ function findAndDoCombos(board: Board): Board[] {
       }
     }
     const resultAfterGravity = moveTilesDown(matches, newBoard)
-    result = [...result, newBoard, ...resultAfterGravity]
+    result = [
+      ...result,
+      {
+        board: newBoard,
+        points: matches.reduce(
+          (acc, match) => Math.pow(2, match.newValue) + acc,
+          0,
+        ),
+      },
+      ...resultAfterGravity.map((b) => {
+        return { board: b, points: 0 }
+      }),
+    ]
     matches = uniqueNewMatches(resultAfterGravity[1])
     previousBoard = resultAfterGravity[1]
   }

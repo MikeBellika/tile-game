@@ -1,5 +1,11 @@
 "use client"
-import { Board, Position, copyBoard, useBoard } from "@/hooks/useBoard"
+import {
+  Board,
+  BoardPoints,
+  Position,
+  copyBoard,
+  useBoard,
+} from "@/hooks/useBoard"
 import { motion, AnimatePresence, Transition } from "framer-motion"
 import { useState } from "react"
 import Tile from "./Tile"
@@ -17,8 +23,12 @@ export default function Game() {
   const [selectedFrom, setSelectedFrom] = useState<Position | undefined>(
     undefined,
   )
-  const [boardsHistory, setBoardsHistory] = useState<Board[]>([board])
+  const [boardsHistory, setBoardsHistory] = useState<BoardPoints[]>([
+    { board, points: 0 },
+  ])
   const [currentRevision, setCurrentRevision] = useState(0)
+
+  const [points, setPoints] = useState(0)
 
   const [debug, _] = useState(false)
 
@@ -46,7 +56,8 @@ export default function Game() {
     const newBoardsHistory = [...boardsHistory, ...boards]
     setBoardsHistory(newBoardsHistory)
     for (const [index, newBoard] of boards.entries()) {
-      setBoard(newBoard)
+      setBoard(newBoard.board)
+      setPoints((currentPoints) => currentPoints + newBoard.points)
       if (index < boards.length - 1) {
         await new Promise((r) => setTimeout(r, animationDuration * 1000 + 100))
       }
@@ -57,11 +68,11 @@ export default function Game() {
 
   function undo() {
     setCurrentRevision(currentRevision - 1)
-    setBoard(boardsHistory[currentRevision - 1])
+    setBoard(boardsHistory[currentRevision - 1].board)
   }
   function redo() {
     setCurrentRevision(currentRevision + 1)
-    setBoard(boardsHistory[currentRevision + 1])
+    setBoard(boardsHistory[currentRevision + 1].board)
   }
 
   function getExitTo({ x, y }: Position): Position | undefined {
@@ -107,6 +118,7 @@ export default function Game() {
           )}
         </AnimatePresence>
       </main>
+      Points: {points}
       {!animating && isGameOver(board) ? "Game over!" : ""}
       {debug ? (
         <>
