@@ -133,7 +133,9 @@ function getSameTilesRight(position: Position, board: Board): Array<Position> {
 function getTileValue(
   position: Position,
   board: Board,
-): { value: number; matchedTiles: Position[]; origin: Position } {
+):
+  | { value: number; matchedTiles: Position[]; origin: Position; match: true }
+  | { value: number; matchedTiles: []; origin: Position; match: false } {
   const tile = board[position.x][position.y]
 
   const tilesUp = getSameTilesUp(position, board)
@@ -155,12 +157,18 @@ function getTileValue(
   }
   const points = matchedTiles.length
   if (points == 0) {
-    return { value: tile.value, matchedTiles, origin: position }
+    return {
+      value: tile.value,
+      origin: position,
+      matchedTiles: [],
+      match: false,
+    }
   }
   return {
     value: tile.value + points - 1,
     matchedTiles: matchedTiles,
     origin: position,
+    match: true,
   }
 }
 
@@ -299,9 +307,7 @@ function positionsWithMatches(board: Board): Position[] {
   return board
     .map((row, x) => {
       return row.map((_, y) => {
-        return getTileValue({ x, y }, board).matchedTiles.length > 0
-          ? { x, y }
-          : undefined
+        return getTileValue({ x, y }, board).match ? { x, y } : undefined
       })
     })
     .flat()
