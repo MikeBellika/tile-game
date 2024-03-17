@@ -10,6 +10,7 @@ export default function Game() {
     isAdjacent,
     swapTile,
     getTileColor,
+    isGameOver,
   } = useBoard(8)
   const [board, setBoard] = useState<Board>(initialBoard)
   const [animating, setAnimating] = useState(false)
@@ -18,6 +19,8 @@ export default function Game() {
   )
   const [boardsHistory, setBoardsHistory] = useState<Board[]>([board])
   const [currentRevision, setCurrentRevision] = useState(0)
+
+  const [debug, _] = useState(false)
 
   const animationDuration = 0.8
   const transition: Transition = { type: "spring", duration: animationDuration }
@@ -104,17 +107,24 @@ export default function Game() {
           )}
         </AnimatePresence>
       </main>
-      boards history length {boardsHistory.length}
-      <button disabled={currentRevision == 0} onClick={() => undo()}>
-        Undo
-      </button>
-      <button
-        disabled={currentRevision == boardsHistory.length - 1}
-        onClick={() => redo()}
-      >
-        Redo
-      </button>
-      <span>Current revision: {currentRevision}</span>
+      {!animating && isGameOver(board) ? "Game over!" : ""}
+      {debug ? (
+        <>
+          boards history length {boardsHistory.length}
+          <button disabled={currentRevision == 0} onClick={() => undo()}>
+            Undo
+          </button>
+          <button
+            disabled={currentRevision == boardsHistory.length - 1}
+            onClick={() => redo()}
+          >
+            Redo
+          </button>
+          <span>Current revision: {currentRevision}</span>
+        </>
+      ) : (
+        ""
+      )}
     </div>
   )
 }

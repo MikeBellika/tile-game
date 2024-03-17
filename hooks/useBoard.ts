@@ -297,6 +297,44 @@ function getMatchesOnBoard(board: Board): MatchedTile[] {
     .flat()
     .filter((x) => x != undefined) as MatchedTile[]
 }
+function isGameOver(board: Board): boolean {
+  for (let x = 0; x < board.length; x++) {
+    for (let y = 0; y < board[x].length; y++) {
+      const position: Position = { x, y }
+
+      const adjacentPositions: Position[] = [
+        { x: x - 1, y }, // Left
+        { x: x + 1, y }, // Right
+        { x, y: y - 1 }, // Up
+        { x, y: y + 1 }, // Down
+      ]
+
+      for (const adjPosition of adjacentPositions) {
+        if (
+          adjPosition.x < 0 ||
+          adjPosition.x >= board.length ||
+          adjPosition.y < 0 ||
+          adjPosition.y >= board[x].length
+        ) {
+          continue
+        }
+
+        const tempBoard = copyBoard(board)
+        const tempTile = tempBoard[x][y]
+        tempBoard[x][y] = tempBoard[adjPosition.x][adjPosition.y]
+        tempBoard[adjPosition.x][adjPosition.y] = tempTile
+
+        if (
+          getMatchedTile(position, tempBoard).match ||
+          getMatchedTile(adjPosition, tempBoard).match
+        ) {
+          return false
+        }
+      }
+    }
+  }
+  return true
+}
 
 function getTileColor(tile: Tile) {
   if (tile.value > 11) {
@@ -315,6 +353,7 @@ export function useBoard(size: number) {
     swapTile,
     getTileColor,
     isAdjacent,
+    isGameOver,
     getTileValue: getMatchedTile,
   }
 }
