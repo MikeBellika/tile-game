@@ -30,28 +30,23 @@ export function positionToNumber({ x, y }: Position, board: Board): number {
 }
 
 function generateBoard(size: number): Board {
-  const iniialBoard = Array.from({ length: size }).map((_) =>
+  const initialBoard = Array.from({ length: size }).map((_) =>
     Array.from({ length: size }).map((__) => {
       return getRandomTile()
     }),
   )
-  let changedValue = true
-  while (changedValue) {
-    changedValue = false
-    for (let x = 0; x < size; x++) {
-      for (let y = 0; y < size; y++) {
-        const tileValue = getTileValue({ x, y }, iniialBoard).value
-        if (tileValue != iniialBoard[x][y].value) {
-          iniialBoard[x][y] = {
-            ...iniialBoard[x][y],
-            value: getRandomTileValue(),
-          }
-          changedValue = true
-        }
+  let matchesOnBoard = getMatchesOnBoard(initialBoard)
+  while (matchesOnBoard.length > 0) {
+    for (const match of matchesOnBoard) {
+      const { x, y } = match.origin
+      initialBoard[x][y] = {
+        ...initialBoard[x][y],
+        value: getRandomTileValue(),
       }
     }
+    matchesOnBoard = getMatchesOnBoard(initialBoard)
   }
-  return iniialBoard
+  return initialBoard
 }
 
 export function copyBoard(board: Board): Board {
@@ -65,21 +60,11 @@ function isAdjacent(a: Position, b: Position): boolean {
   )
 }
 
-function isMoveValid(
-  from: Position,
-  to: Position,
-  before: Board,
-  after: Board,
-): boolean {
+function isMoveValid(from: Position, to: Position, after: Board): boolean {
   if (!isAdjacent(from, to)) {
     return false
   }
-  const fromBefore = getTileValue(from, before).value
-  const fromAfter = getTileValue(to, after).value
-  const toBefore = getTileValue(to, before).value
-  const toAfter = getTileValue(from, after).value
-  // If either tile value changed between moves, it's a valid move
-  return fromBefore != fromAfter || toBefore != toAfter
+  return getMatchedTile(from, after).match || getMatchedTile(to, after).match
 }
 
 function getSameTilesUp(position: Position, board: Board): Array<Position> {
@@ -130,12 +115,16 @@ function getSameTilesRight(position: Position, board: Board): Array<Position> {
   return result
 }
 
-function getTileValue(
+type MatchedTile = {
+  newValue: number
+  matchedTiles: Position[]
+  origin: Position
+  match: true
+}
+function getMatchedTile(
   position: Position,
   board: Board,
-):
-  | { value: number; matchedTiles: Position[]; origin: Position; match: true }
-  | { value: number; matchedTiles: []; origin: Position; match: false } {
+): MatchedTile | { match: false } {
   const tile = board[position.x][position.y]
 
   const tilesUp = getSameTilesUp(position, board)
@@ -158,14 +147,11 @@ function getTileValue(
   const points = matchedTiles.length
   if (points == 0) {
     return {
-      value: tile.value,
-      origin: position,
-      matchedTiles: [],
       match: false,
     }
   }
   return {
-    value: tile.value + points - 1,
+    newValue: tile.value + points - 1,
     matchedTiles: matchedTiles,
     origin: position,
     match: true,
@@ -179,43 +165,48 @@ function swapTile(from: Position, to: Position, board: Board): Board[] {
   const swappedBoard = copyBoard(board)
   swappedBoard[to.x][to.y] = board[from.x][from.y]
   swappedBoard[from.x][from.y] = board[to.x][to.y]
-  if (!isMoveValid(from, to, board, swappedBoard)) {
+  if (!isMoveValid(from, to, swappedBoard)) {
     console.log("move not valid")
     // Animate to the swapped board, then back again
     return [swappedBoard, board]
   }
   const newBoard = copyBoard(swappedBoard)
-  const fromNewValue = getTileValue(from, newBoard)
-  const toNewValue = getTileValue(to, newBoard)
-  newBoard[from.x][from.y] = {
-    ...newBoard[from.x][from.y],
-    value: fromNewValue.value,
-  }
-  newBoard[to.x][to.y] = { ...newBoard[to.x][to.y], value: toNewValue.value }
+  const fromMatchedTile = getMatchedTile(from, newBoard)
+  const toMatchedTile = getMatchedTile(to, newBoard)
+  const refactorMe = []
 
-  const boardAfterGravity = moveTilesDown(
-    [
-      { mergeTo: fromNewValue.origin, toRemove: fromNewValue.matchedTiles },
-      { mergeTo: toNewValue.origin, toRemove: toNewValue.matchedTiles },
-    ],
-    newBoard,
-  )
+  if (fromMatchedTile.match) {
+    newBoard[from.x][from.y] = {
+      ...newBoard[from.x][from.y],
+      value: fromMatchedTile.newValue,
+    }
+    refactorMe.push(fromMatchedTile)
+  }
+  if (toMatchedTile.match) {
+    newBoard[to.x][to.y] = {
+      ...newBoard[to.x][to.y],
+      value: toMatchedTile.newValue,
+    }
+    refactorMe.push(toMatchedTile)
+  }
+
+  const boardAfterGravity = moveTilesDown(refactorMe, newBoard)
   const boardAfterCombos = findAndDoCombos(boardAfterGravity[1])
 
   return [swappedBoard, newBoard, ...boardAfterGravity, ...boardAfterCombos]
 }
 
 export function moveTilesDown(
-  positionsToRemove: { mergeTo: Position; toRemove: Position[] }[],
+  matchedTiles: MatchedTile[],
   board: Board,
 ): [Board, Board] {
   const boardWithRemovedTiles = copyBoard(board)
-  for (const positionPairToRemove of positionsToRemove) {
-    for (const { x, y } of positionPairToRemove.toRemove) {
+  for (const positionPairToRemove of matchedTiles) {
+    for (const { x, y } of positionPairToRemove.matchedTiles) {
       boardWithRemovedTiles[x][y] = {
         ...boardWithRemovedTiles[x][y],
         removed: true,
-        mergedTo: positionPairToRemove.mergeTo,
+        mergedTo: positionPairToRemove.origin,
       }
     }
   }
@@ -225,8 +216,8 @@ export function moveTilesDown(
     let emptyTilesBelow = 0
     for (let y = board[x].length - 1; y >= 0; y--) {
       if (
-        positionsToRemove
-          .map((p) => p.toRemove)
+        matchedTiles
+          .map((p) => p.matchedTiles)
           .flat()
           .find((p) => p.x == x && p.y == y)
       ) {
@@ -250,22 +241,15 @@ function findAndDoCombos(board: Board): Board[] {
 
   let previousBoard = copyBoard(board)
   while (matches.length > 0) {
-    const matchTileValues = matches.map((match) =>
-      getTileValue(match, previousBoard),
-    )
     const newBoard = copyBoard(previousBoard)
-    for (const { x, y } of matches) {
+    for (const match of matches) {
+      const { x, y } = match.origin
       newBoard[x][y] = {
         ...newBoard[x][y],
-        value: getTileValue({ x, y }, previousBoard).value,
+        value: match.newValue,
       }
     }
-    const resultAfterGravity = moveTilesDown(
-      matchTileValues.map((mtv) => {
-        return { mergeTo: mtv.origin, toRemove: mtv.matchedTiles }
-      }),
-      newBoard,
-    )
+    const resultAfterGravity = moveTilesDown(matches, newBoard)
     result = [...result, newBoard, ...resultAfterGravity]
     matches = uniqueNewMatches(resultAfterGravity[1])
     previousBoard = resultAfterGravity[1]
@@ -278,17 +262,17 @@ function findAndDoCombos(board: Board): Board[] {
  * Returns a list of positions that are the highest value matches.
  * For example if there's a tile that matches 5 vertically and 2 horizontally, it will return that tile but not any of the other tiles of the match.
  */
-export function uniqueNewMatches(board: Board): Position[] {
-  const matchPositions = positionsWithMatches(board)
-  const matchValues = matchPositions
-    .map((position) => {
-      return { position, ...getTileValue(position, board) }
+export function uniqueNewMatches(board: Board): MatchedTile[] {
+  const matchesOnBoard = getMatchesOnBoard(board)
+  const matchValues = matchesOnBoard
+    .map((match) => {
+      return { position: match.origin, ...match }
     })
     .sort((a, b) => {
-      return b.value - a.value
+      return b.newValue - a.newValue
     })
   let seenPositions: Position[] = []
-  let result: Position[] = []
+  let result: MatchedTile[] = []
   for (const matchValue of matchValues) {
     if (
       seenPositions.find(
@@ -298,20 +282,21 @@ export function uniqueNewMatches(board: Board): Position[] {
       continue
     }
     seenPositions = [...seenPositions, ...matchValue.matchedTiles]
-    result = [...result, matchValue.position]
+    result = [...result, matchValue]
   }
   return result
 }
 
-function positionsWithMatches(board: Board): Position[] {
+function getMatchesOnBoard(board: Board): MatchedTile[] {
   return board
     .map((row, x) => {
       return row.map((_, y) => {
-        return getTileValue({ x, y }, board).match ? { x, y } : undefined
+        const matchedTile = getMatchedTile({ x, y }, board)
+        return matchedTile.match ? matchedTile : undefined
       })
     })
     .flat()
-    .filter((x) => x != undefined) as Position[]
+    .filter((x) => x != undefined) as MatchedTile[]
 }
 
 function getTileColor(tile: Tile) {
@@ -326,5 +311,5 @@ export function useBoard(size: number) {
   // regenerate only if `size` changes
   const board: Board = useMemo(() => generateBoard(size), [size])
 
-  return { board, swapTile, getTileColor, getTileValue }
+  return { board, swapTile, getTileColor, getTileValue: getMatchedTile }
 }
