@@ -1,21 +1,15 @@
 "use client"
-import {
-  Board,
-  Position,
-  copyBoard,
-  uniqueNewMatches,
-  useBoard,
-} from "@/hooks/useBoard"
-import { motion, AnimatePresence } from "framer-motion"
+import { Board, Position, copyBoard, useBoard } from "@/hooks/useBoard"
+import { motion, AnimatePresence, Transition } from "framer-motion"
 import { useState } from "react"
 import Tile from "./Tile"
 
 export default function Game() {
   const {
     board: initialBoard,
+    isAdjacent,
     swapTile,
     getTileColor,
-    getTileValue,
   } = useBoard(8)
   const [board, setBoard] = useState<Board>(initialBoard)
   const [animating, setAnimating] = useState(false)
@@ -25,39 +19,36 @@ export default function Game() {
   const [boardsHistory, setBoardsHistory] = useState<Board[]>([board])
   const [currentRevision, setCurrentRevision] = useState(0)
 
+  const animationDuration = 0.8
+  const transition: Transition = { type: "spring", duration: animationDuration }
+
   async function clickTile(position: Position) {
-    console.log(
-      "clicked ",
-      position,
-      Math.pow(2, board[position.x][position.y].value),
-      Math.pow(2, getTileValue(position, board).value),
-    )
-    console.log(uniqueNewMatches(board))
     if (animating) {
       return
     }
     if (!selectedFrom) {
-      // return
       setSelectedFrom(position)
       return
     }
-    if (selectedFrom.x == position.x && selectedFrom.y == position.y) {
+    if (
+      (selectedFrom.x == position.x && selectedFrom.y == position.y) ||
+      !isAdjacent(selectedFrom, position)
+    ) {
       setSelectedFrom(undefined)
       return
     }
+    setSelectedFrom(undefined)
     const boards = swapTile(selectedFrom, position, board)
-    console.log(`Got ${boards.length} new boards`)
     setAnimating(true)
     const newBoardsHistory = [...boardsHistory, ...boards]
     setBoardsHistory(newBoardsHistory)
     for (const [index, newBoard] of boards.entries()) {
       setBoard(newBoard)
       if (index < boards.length - 1) {
-        await new Promise((r) => setTimeout(r, 2000))
+        await new Promise((r) => setTimeout(r, animationDuration * 1000 + 100))
       }
     }
     setCurrentRevision(newBoardsHistory.length - 1)
-    setSelectedFrom(undefined)
     setAnimating(false)
   }
 
@@ -77,6 +68,7 @@ export default function Game() {
     }
     return { x: (x - tile.mergedTo.x) * -80, y: (y - tile.mergedTo.y) * -80 }
   }
+
   return (
     <div className="flex flex-col">
       <main className="grid w-fit grid-cols-8 grid-rows-8 items-center gap-4 ">
@@ -86,11 +78,7 @@ export default function Game() {
               <motion.button
                 disabled={animating}
                 layout
-                transition={{
-                  type: "spring",
-                  stiffness: 100,
-                  damping: 30,
-                }}
+                transition={transition}
                 onContextMenu={(event) => {
                   event.preventDefault()
                   const newValue = parseInt(prompt("Enter new value") ?? "0")

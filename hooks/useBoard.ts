@@ -166,7 +166,6 @@ function swapTile(from: Position, to: Position, board: Board): Board[] {
   swappedBoard[to.x][to.y] = board[from.x][from.y]
   swappedBoard[from.x][from.y] = board[to.x][to.y]
   if (!isMoveValid(from, to, swappedBoard)) {
-    console.log("move not valid")
     // Animate to the swapped board, then back again
     return [swappedBoard, board]
   }
@@ -311,5 +310,11 @@ export function useBoard(size: number) {
   // regenerate only if `size` changes
   const board: Board = useMemo(() => generateBoard(size), [size])
 
-  return { board, swapTile, getTileColor, getTileValue: getMatchedTile }
+  return {
+    board,
+    swapTile,
+    getTileColor,
+    isAdjacent,
+    getTileValue: getMatchedTile,
+  }
 }
