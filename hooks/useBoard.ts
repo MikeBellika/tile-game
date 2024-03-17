@@ -1,12 +1,10 @@
 import { useMemo } from "react"
 
-export type Tile = { id: number; value: number; removed: boolean }
+export type Tile =
+  | { id: number; value: number; removed: false }
+  | { id: number; value: number; removed: true; mergedTo: Position }
 export type Board = Tile[][]
 export type Position = { x: number; y: number }
-type PositionToBeRemoved = number
-type PositionToMergeTo = Position
-export type RemovedTiles = Map<PositionToBeRemoved, PositionToMergeTo>
-export type BoardChange = [Board, RemovedTiles]
 
 function getRandomTileId(): number {
   return Math.random()
@@ -166,30 +164,17 @@ function getTileValue(
   }
 }
 
-function addPositionsToMap(
-  postionToMergeTo: PositionToMergeTo,
-  positionsToRemove: PositionToBeRemoved[],
-  map: Map<PositionToBeRemoved, PositionToMergeTo>,
-): void {
-  positionsToRemove.forEach((p) => {
-    map.set(p, postionToMergeTo)
-  })
-}
-
 /**
  * The main thing. Returns a list of boards to be animated through
  */
-function swapTile(from: Position, to: Position, board: Board): BoardChange[] {
+function swapTile(from: Position, to: Position, board: Board): Board[] {
   const swappedBoard = copyBoard(board)
   swappedBoard[to.x][to.y] = board[from.x][from.y]
   swappedBoard[from.x][from.y] = board[to.x][to.y]
   if (!isMoveValid(from, to, board, swappedBoard)) {
     console.log("move not valid")
     // Animate to the swapped board, then back again
-    return [
-      [swappedBoard, new Map()],
-      [board, new Map()],
-    ]
+    return [swappedBoard, board]
   }
   const newBoard = copyBoard(swappedBoard)
   const fromNewValue = getTileValue(from, newBoard)
@@ -200,63 +185,66 @@ function swapTile(from: Position, to: Position, board: Board): BoardChange[] {
   }
   newBoard[to.x][to.y] = { ...newBoard[to.x][to.y], value: toNewValue.value }
 
-  const matchedTiles = [
-    ...fromNewValue.matchedTiles,
-    ...toNewValue.matchedTiles,
-  ]
-  const matchedTilesMap = new Map()
-  addPositionsToMap(
-    from,
-    fromNewValue.matchedTiles.map((p) => positionToNumber(p, board)),
-    matchedTilesMap,
+  const boardAfterGravity = moveTilesDown(
+    [
+      { mergeTo: fromNewValue.origin, toRemove: fromNewValue.matchedTiles },
+      { mergeTo: toNewValue.origin, toRemove: toNewValue.matchedTiles },
+    ],
+    newBoard,
   )
-  addPositionsToMap(
-    to,
-    toNewValue.matchedTiles.map((p) => positionToNumber(p, board)),
-    matchedTilesMap,
-  )
+  const boardAfterCombos = findAndDoCombos(boardAfterGravity[1])
 
-  const boardAfterGravity = moveTilesDown(matchedTiles, newBoard)
-  const boardAfterCombos = findAndDoCombos(boardAfterGravity)
-
-  return [
-    [swappedBoard, new Map()],
-    [newBoard, matchedTilesMap],
-    [boardAfterGravity, new Map()],
-    ...boardAfterCombos,
-  ]
+  return [swappedBoard, newBoard, ...boardAfterGravity, ...boardAfterCombos]
 }
 
-export function moveTilesDown(positions: Position[], board: Board): Board {
+export function moveTilesDown(
+  positionsToRemove: { mergeTo: Position; toRemove: Position[] }[],
+  board: Board,
+): [Board, Board] {
+  const boardWithRemovedTiles = copyBoard(board)
+  for (const positionPairToRemove of positionsToRemove) {
+    for (const { x, y } of positionPairToRemove.toRemove) {
+      boardWithRemovedTiles[x][y] = {
+        ...boardWithRemovedTiles[x][y],
+        removed: true,
+        mergedTo: positionPairToRemove.mergeTo,
+      }
+    }
+  }
   const newBoard = copyBoard(board)
 
   for (let x = 0; x < board.length; x++) {
     let emptyTilesBelow = 0
     for (let y = board[x].length - 1; y >= 0; y--) {
-      if (positions.find((p) => p.x == x && p.y == y)) {
+      if (
+        positionsToRemove
+          .map((p) => p.toRemove)
+          .flat()
+          .find((p) => p.x == x && p.y == y)
+      ) {
         emptyTilesBelow += 1
         continue
       }
       newBoard[x][y + emptyTilesBelow] = board[x][y]
     }
+    // Fill in from top
     for (let y = 0; y < emptyTilesBelow; y++) {
       newBoard[x][y] = getRandomTile()
     }
   }
 
-  return newBoard
+  return [boardWithRemovedTiles, newBoard]
 }
 
-function findAndDoCombos(board: Board): BoardChange[] {
-  let result: BoardChange[] = []
+function findAndDoCombos(board: Board): Board[] {
+  let result: Board[] = []
   let matches = uniqueNewMatches(board)
-  let i = 0
+
   let previousBoard = copyBoard(board)
   while (matches.length > 0) {
     const matchTileValues = matches.map((match) =>
       getTileValue(match, previousBoard),
     )
-    const tilesToRemove = matchTileValues.map((mtv) => mtv.matchedTiles).flat()
     const newBoard = copyBoard(previousBoard)
     for (const { x, y } of matches) {
       newBoard[x][y] = {
@@ -264,27 +252,15 @@ function findAndDoCombos(board: Board): BoardChange[] {
         value: getTileValue({ x, y }, previousBoard).value,
       }
     }
-    const resultAfterGravity = moveTilesDown(tilesToRemove, newBoard)
-    const newBoardMap = new Map()
-    matchTileValues.forEach((mtv) =>
-      addPositionsToMap(
-        mtv.origin,
-        mtv.matchedTiles.map((p) => positionToNumber(p, board)),
-        newBoardMap,
-      ),
+    const resultAfterGravity = moveTilesDown(
+      matchTileValues.map((mtv) => {
+        return { mergeTo: mtv.origin, toRemove: mtv.matchedTiles }
+      }),
+      newBoard,
     )
-    result = [
-      ...result,
-      [newBoard, newBoardMap],
-      [resultAfterGravity, new Map()],
-    ]
-    matches = uniqueNewMatches(resultAfterGravity)
-    previousBoard = resultAfterGravity
-    i++
-    if (i > 100) {
-      console.error("Infinite loop")
-      break
-    }
+    result = [...result, newBoard, ...resultAfterGravity]
+    matches = uniqueNewMatches(resultAfterGravity[1])
+    previousBoard = resultAfterGravity[1]
   }
 
   return result
