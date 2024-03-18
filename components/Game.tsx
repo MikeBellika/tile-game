@@ -32,7 +32,7 @@ export default function Game() {
 
   const [debug, _] = useState(false)
 
-  const animationDuration = 0.8
+  const animationDuration = 0.4
   const transition: Transition = { type: "spring", duration: animationDuration }
 
   async function clickTile(position: Position) {
