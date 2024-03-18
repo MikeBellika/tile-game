@@ -35,7 +35,7 @@ export function numberToPosition(number: number, board: Board) {
   return { x, y }
 }
 
-function generateBoard(size: number): Board {
+export function generateBoard(size: number): Board {
   const initialBoard = Array.from({ length: size }).map((_) =>
     Array.from({ length: size }).map((__) => {
       return getRandomTile()

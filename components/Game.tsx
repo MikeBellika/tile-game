@@ -4,6 +4,7 @@ import {
   BoardPoints,
   Position,
   copyBoard,
+  generateBoard,
   getSavedGameState,
   saveGameStateToCookie,
   useBoard,
@@ -13,6 +14,8 @@ import {
   AnimatePresence,
   Transition,
   TargetAndTransition,
+  useAnimate,
+  AnimationSequence,
 } from "framer-motion"
 import { useEffect, useRef, useState } from "react"
 import Tile from "./Tile"
@@ -108,25 +111,37 @@ export default function Game() {
       y: (y - tile.mergedTo.y) * -size,
     }
   }
-  const grid = useRef<HTMLDivElement>(null)
+  const [grid, animate] = useAnimate()
 
-  const [hintPositions, setHintPositions] = useState<
-    [Position, Position] | undefined
-  >(undefined)
-  function getHint(): void {
-    setHintPositions(getPositionsThatAlmostMatch(board))
+  function resetBoard(): void {
+    saveGameStateToCookie(generateBoard(8), 0)
+    window.location.reload()
   }
 
-  function getAnimation(position: Position): TargetAndTransition {
-    const { x, y } = position
-    if (hintPositions?.find((p) => p.x == x && p.y == y)) {
-      return { scale: [1.4, 1.5, 1.4, 1], y: 0 }
+  function getHint(): void {
+    const hintPositions = getPositionsThatAlmostMatch(board)
+    if (!hintPositions) {
+      return
     }
-    const exitTo = getExitTo(position)
-    if (exitTo) {
-      return exitTo
-    }
-    return { y: 0 }
+    const { x: x1, y: y1 } = hintPositions[0]
+    const { x: x2, y: y2 } = hintPositions[1]
+    const sequence1: AnimationSequence = [
+      [
+        `[data-pos="${x1}${y1}"]`,
+        { scale: 1.2, x: (x2 - x1) * 10, y: (y2 - y1) * 10 },
+      ],
+      [`[data-pos="${x1}${y1}"]`, { scale: 1, x: 0, y: 0 }],
+    ]
+    const sequence2: AnimationSequence = [
+      [
+        `[data-pos="${x2}${y2}"]`,
+        { scale: 0.8, x: (x2 - x1) * -10, y: (y2 - y1) * -10 },
+      ],
+      [`[data-pos="${x2}${y2}"]`, { scale: 1, x: 0, y: 0 }],
+    ]
+
+    animate(sequence1)
+    animate(sequence2)
   }
 
   return (
@@ -141,8 +156,11 @@ export default function Game() {
               <motion.button
                 disabled={animating}
                 layout
-                transition={transition}
+                data-pos={`${x}${y}`}
                 onContextMenu={(event) => {
+                  if (!debug) {
+                    return
+                  }
                   event.preventDefault()
                   const newValue = parseInt(prompt("Enter new value") ?? "0")
                   const newBoard = copyBoard(board)
@@ -170,7 +188,20 @@ export default function Game() {
         </AnimatePresence>
       </main>
       Points: {points}
-      <button onClick={getHint}>Get hint</button>
+      <div className="flex flex-row justify-between">
+        <button
+          onClick={getHint}
+          className="bg-blue-600 w-fit text-white rounded-lg px-8 py-4"
+        >
+          Get hint
+        </button>
+        <button
+          onClick={resetBoard}
+          className="bg-red-600 w-fit text-white rounded-lg px-8 py-4"
+        >
+          Reset
+        </button>
+      </div>
       {!animating && isGameOver(board) ? "Game over!" : ""}
       {debug ? (
         <>
