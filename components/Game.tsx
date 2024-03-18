@@ -100,7 +100,7 @@ export default function Game() {
   return (
     <div className="flex flex-col">
       <main
-        className="grid w-screen sm:w-full grid-cols-8 grid-rows-8 items-center gap-0.5 sm:gap-2 md:gap-3"
+        className="grid w-screen p-1 sm:p-4 sm:w-full grid-cols-8 grid-rows-8 items-center gap-0.5 sm:gap-2 md:gap-3"
         ref={grid}
       >
         <AnimatePresence mode="popLayout">
