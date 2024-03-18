@@ -367,8 +367,8 @@ function isGameOver(board: Board): boolean {
 }
 
 function getTileColor(tile: Tile) {
-  if (tile.value > 11) {
-    return "#000000"
+  if (tile.value >= 11) {
+    return `hsl(${tile.value * 36} 100% 75%)`
   }
   return `hsl(${tile.value * 36} 100% 50%)`
 }
