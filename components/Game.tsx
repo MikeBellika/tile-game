@@ -154,6 +154,7 @@ export default function Game() {
           {board.map((row, y) =>
             row.map((_, x) => (
               <motion.button
+                transition={transition}
                 disabled={animating}
                 layout
                 data-pos={`${x}${y}`}
