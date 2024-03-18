@@ -100,7 +100,7 @@ export default function Game() {
   return (
     <div className="flex flex-col">
       <main
-        className="grid w-fit grid-cols-8 grid-rows-8 items-center gap-1 sm:gap-4"
+        className="grid w-screen sm:w-full grid-cols-8 grid-rows-8 items-center gap-0.5 sm:gap-2 md:gap-3"
         ref={grid}
       >
         <AnimatePresence mode="popLayout">
@@ -119,7 +119,7 @@ export default function Game() {
                 }}
                 initial={{ y: -80 }}
                 animate={getExitTo({ x, y }) ?? { y: 0 }}
-                className={`size-10 sm:size-14 md:size-16 ${
+                className={`w-full sm:size-12 md:size-14 aspect-square ${
                   getExitTo({ x, y }) ? "z-0" : "z-10"
                 }`}
                 // drag
