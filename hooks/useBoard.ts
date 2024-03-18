@@ -29,6 +29,12 @@ export function positionToNumber({ x, y }: Position, board: Board): number {
   return y * board.length + x
 }
 
+export function numberToPosition(number: number, board: Board) {
+  const x = number % board.length
+  const y = Math.floor(number / board.length)
+  return { x, y }
+}
+
 function generateBoard(size: number): Board {
   const initialBoard = Array.from({ length: size }).map((_) =>
     Array.from({ length: size }).map((__) => {
@@ -328,6 +334,15 @@ function getMatchesOnBoard(board: Board): MatchedTile[] {
     .filter((x) => x != undefined) as MatchedTile[]
 }
 function isGameOver(board: Board): boolean {
+  return getPositionsThatAlmostMatch(board) == undefined
+}
+
+/**
+ * Returns two tiles that can be swapped to make a match
+ */
+function getPositionsThatAlmostMatch(
+  board: Board,
+): [Position, Position] | undefined {
   for (let x = 0; x < board.length; x++) {
     for (let y = 0; y < board[x].length; y++) {
       const position: Position = { x, y }
@@ -358,12 +373,11 @@ function isGameOver(board: Board): boolean {
           getMatchedTile(position, tempBoard).match ||
           getMatchedTile(adjPosition, tempBoard).match
         ) {
-          return false
+          return [position, adjPosition]
         }
       }
     }
   }
-  return true
 }
 
 function getTileColor(tile: Tile) {
@@ -372,10 +386,73 @@ function getTileColor(tile: Tile) {
   }
   return `hsl(${tile.value * 36} 100% 50%)`
 }
+// Function to save the game state to a cookie
+export function saveGameStateToCookie(board: Board, points: number) {
+  // Convert board positions to numbers for easier serialization
+  const boardNumbers = board.flat().map((tile) => tile.value) // Assuming tile.value is a number
 
+  // Create an object to store the board, points, and size
+  const gameState = {
+    boardNumbers,
+    points,
+    size: board.length, // Assuming a square board
+  }
+
+  // Serialize game state object to JSON and store in a cookie
+  const gameStateString = encodeURIComponent(JSON.stringify(gameState))
+  const expires = new Date(Date.now() + 7 * 864e5).toUTCString() // Expires in 7 days
+  document.cookie = `gameState=${gameStateString}; expires=${expires}; path=/`
+}
+
+// Function to retrieve the game state from a cookie
+export function getSavedGameState():
+  | {
+      board: Board
+      points: number
+      size: number
+    }
+  | undefined {
+  const cookieString = document.cookie
+  const cookies = cookieString.split("; ").reduce(
+    (acc, currentCookie) => {
+      const [key, value] = currentCookie.split("=")
+      acc[key] = value
+      return acc
+    },
+    {} as { [key: string]: string },
+  )
+
+  const gameStateCookie = cookies["gameState"]
+
+  if (!gameStateCookie) {
+    return undefined
+  }
+
+  // Parse the URL-encoded JSON back to an object
+  const gameState = JSON.parse(decodeURIComponent(gameStateCookie))
+
+  // Reconstruct the board using the size and boardNumbers
+  const size = gameState.size
+  const boardNumbers = gameState.boardNumbers
+
+  // Fix: Reconstruct the board using the correct x and y coordinates
+  const board: Board = Array.from({ length: size }, (_, y) =>
+    Array.from({ length: size }, (_, x) => {
+      const index = y * size + x // Calculate index based on the row-major order
+      return {
+        ...getRandomTile(),
+        value: boardNumbers[index],
+      }
+    }),
+  )
+
+  return {
+    board,
+    points: gameState.points,
+    size,
+  }
+}
 export function useBoard(size: number) {
-  // Memoize board to prevent regeneration on every rerender,
-  // regenerate only if `size` changes
   const board: Board = useMemo(() => generateBoard(size), [size])
 
   return {
@@ -383,6 +460,7 @@ export function useBoard(size: number) {
     swapTile,
     getTileColor,
     isAdjacent,
+    getPositionsThatAlmostMatch,
     isGameOver,
     getTileValue: getMatchedTile,
   }

@@ -4,21 +4,30 @@ import {
   BoardPoints,
   Position,
   copyBoard,
+  getSavedGameState,
+  saveGameStateToCookie,
   useBoard,
 } from "@/hooks/useBoard"
-import { motion, AnimatePresence, Transition } from "framer-motion"
-import { useRef, useState } from "react"
+import {
+  motion,
+  AnimatePresence,
+  Transition,
+  TargetAndTransition,
+} from "framer-motion"
+import { useEffect, useRef, useState } from "react"
 import Tile from "./Tile"
 
 export default function Game() {
+  const savedState = getSavedGameState()
   const {
     board: initialBoard,
     isAdjacent,
     swapTile,
     getTileColor,
+    getPositionsThatAlmostMatch,
     isGameOver,
   } = useBoard(8)
-  const [board, setBoard] = useState<Board>(initialBoard)
+  const [board, setBoard] = useState<Board>(savedState?.board ?? initialBoard)
   const [animating, setAnimating] = useState(false)
   const [selectedFrom, setSelectedFrom] = useState<Position | undefined>(
     undefined,
@@ -28,7 +37,7 @@ export default function Game() {
   ])
   const [currentRevision, setCurrentRevision] = useState(0)
 
-  const [points, setPoints] = useState(0)
+  const [points, setPoints] = useState(savedState?.points ?? 0)
 
   const [debug, _] = useState(false)
 
@@ -62,9 +71,13 @@ export default function Game() {
         await new Promise((r) => setTimeout(r, animationDuration * 1000 + 100))
       }
     }
+
     setCurrentRevision(newBoardsHistory.length - 1)
     setAnimating(false)
   }
+  useEffect(() => {
+    saveGameStateToCookie(board, points)
+  }, [board, points])
 
   function undo() {
     setCurrentRevision(currentRevision - 1)
@@ -96,6 +109,25 @@ export default function Game() {
     }
   }
   const grid = useRef<HTMLDivElement>(null)
+
+  const [hintPositions, setHintPositions] = useState<
+    [Position, Position] | undefined
+  >(undefined)
+  function getHint(): void {
+    setHintPositions(getPositionsThatAlmostMatch(board))
+  }
+
+  function getAnimation(position: Position): TargetAndTransition {
+    const { x, y } = position
+    if (hintPositions?.find((p) => p.x == x && p.y == y)) {
+      return { scale: [1.4, 1.5, 1.4, 1], y: 0 }
+    }
+    const exitTo = getExitTo(position)
+    if (exitTo) {
+      return exitTo
+    }
+    return { y: 0 }
+  }
 
   return (
     <div className="flex flex-col">
@@ -138,6 +170,7 @@ export default function Game() {
         </AnimatePresence>
       </main>
       Points: {points}
+      <button onClick={getHint}>Get hint</button>
       {!animating && isGameOver(board) ? "Game over!" : ""}
       {debug ? (
         <>
