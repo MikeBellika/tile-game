@@ -381,10 +381,22 @@ function getPositionsThatAlmostMatch(
 }
 
 function getTileColor(tile: Tile) {
-  if (tile.value >= 11) {
+  const colors = [
+    "#FFCCCC",
+    "#FFFF00",
+    "#1CE6FF",
+    "#FF34FF",
+    "#FF4A46",
+    "#008941",
+    "#006FA6",
+    "#A30059",
+    "#FFDBE5",
+    "#7A4900",
+  ]
+  if (tile.value > colors.length - 1) {
     return `hsl(${tile.value * 36} 100% 75%)`
   }
-  return `hsl(${tile.value * 36} 100% 50%)`
+  return colors[tile.value - 1]
 }
 // Function to save the game state to a cookie
 export function saveGameStateToCookie(board: Board, points: number) {
