@@ -13,11 +13,10 @@ import {
   motion,
   AnimatePresence,
   Transition,
-  TargetAndTransition,
   useAnimate,
   AnimationSequence,
 } from "framer-motion"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import Tile from "./Tile"
 
 export default function Game() {
@@ -26,7 +25,6 @@ export default function Game() {
     board: initialBoard,
     isAdjacent,
     swapTile,
-    getTileColor,
     getPositionsThatAlmostMatch,
     isGameOver,
   } = useBoard(8)
@@ -152,6 +150,23 @@ export default function Game() {
         className="grid w-screen p-1 sm:p-4 sm:w-full grid-cols-8 grid-rows-8 items-center gap-0.5 sm:gap-2 md:gap-3"
         ref={grid}
       >
+        <AnimatePresence>
+          {isGameOver(board) && (
+            <motion.div
+              className="absolute top-0 left-0 w-full h-1/2 flex items-center justify-center z-20"
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0 }}
+              transition={{ type: "spring", stiffness: 400, damping: 15 }}
+            >
+              <div className="">
+                <motion.h1 className="text-blue-100 text-5xl font-bold [text-shadow:_3px_3px_0_#0a9396,_6px_6px_0_#ee9b00,_9px_9px_0_#005f73]">
+                  Game Over
+                </motion.h1>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
         <AnimatePresence mode="popLayout">
           {board.map((row, y) =>
             row.map((_, x) => (
@@ -204,7 +219,6 @@ export default function Game() {
           Reset
         </button>
       </div>
-      {!animating && isGameOver(board) ? "Game over!" : ""}
       {debug ? (
         <>
           boards history length {boardsHistory.length}
