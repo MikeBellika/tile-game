@@ -114,8 +114,10 @@ export default function Game() {
   const [grid, animate] = useAnimate()
 
   function resetBoard(): void {
-    saveGameStateToCookie(generateBoard(8), 0)
-    window.location.reload()
+    if (confirm("Are you sure?")) {
+      saveGameStateToCookie(generateBoard(8), 0)
+      window.location.reload()
+    }
   }
 
   function getHint(): void {
