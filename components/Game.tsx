@@ -183,7 +183,6 @@ export default function Game() {
                 <Tile
                   tile={board[x][y]}
                   selected={selectedFrom?.x == x && selectedFrom.y == y}
-                  color={getTileColor(board[x][y])}
                 />
               </motion.button>
             )),

@@ -380,24 +380,44 @@ function getPositionsThatAlmostMatch(
   }
 }
 
-function getTileColor(tile: Tile) {
+export function getTileColor(tile: Tile) {
   const colors = [
-    "#FFCCCC",
-    "#FFFF00",
-    "#1CE6FF",
-    "#FF34FF",
-    "#FF4A46",
-    "#008941",
-    "#006FA6",
-    "#A30059",
-    "#7b94c5",
-    "#7A4900",
+    "#0a9396",
+    "#e9d8a6",
+    "#ee9b00",
+    "#ca6702",
+    "#005f73",
+    "#bb3e03",
+    "#ae2012",
+    "#94d2bd",
+    "#9b2226",
   ]
   if (tile.value > colors.length - 1) {
-    return `hsl(${tile.value * 36} 100% 75%)`
+    return `hsl(${(tile.value - colors.length) * 36} 100% 75%)`
   }
   return colors[tile.value - 1]
 }
+
+export function getContrastTextColor(hexColor: string): string {
+  if (!hexColor.startsWith("#")) {
+    return "#101013"
+  }
+  let r: number = parseInt(hexColor.substring(1, 3), 16)
+  let g: number = parseInt(hexColor.substring(3, 5), 16)
+  let b: number = parseInt(hexColor.substring(5, 7), 16)
+
+  // to sRGB
+  ;[r, g, b] = [r, g, b]
+    .map((color) => color / 255.0)
+    .map((color) =>
+      color <= 0.03928 ? color / 12.92 : ((color + 0.055) / 1.055) ** 2.4,
+    )
+
+  const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b
+
+  return luminance > 0.3 ? "#101050" : "#f4f4f5"
+}
+
 // Function to save the game state to a cookie
 export function saveGameStateToCookie(board: Board, points: number) {
   // Convert board positions to numbers for easier serialization
