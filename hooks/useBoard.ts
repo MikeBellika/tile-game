@@ -415,7 +415,7 @@ export function getContrastTextColor(hexColor: string): string {
 
   const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b
 
-  return luminance > 0.5 ? "#101050" : "#f4f4f5"
+  return luminance > 0.5 ? "#101050" : "#fafafa"
 }
 
 // Function to save the game state to a cookie
