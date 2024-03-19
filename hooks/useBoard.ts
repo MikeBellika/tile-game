@@ -390,7 +390,7 @@ function getTileColor(tile: Tile) {
     "#008941",
     "#006FA6",
     "#A30059",
-    "#FFDBE5",
+    "#7b94c5",
     "#7A4900",
   ]
   if (tile.value > colors.length - 1) {
