@@ -387,8 +387,8 @@ export function getTileColor(tile: Tile) {
     "#ee9b00",
     "#ca6702",
     "#005f73",
-    "#bb3e03",
     "#ae2012",
+    "#86350f",
     "#94d2bd",
     "#9b2226",
   ]
@@ -415,7 +415,7 @@ export function getContrastTextColor(hexColor: string): string {
 
   const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b
 
-  return luminance > 0.3 ? "#101050" : "#f4f4f5"
+  return luminance > 0.5 ? "#101050" : "#f4f4f5"
 }
 
 // Function to save the game state to a cookie
