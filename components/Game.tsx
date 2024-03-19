@@ -204,20 +204,35 @@ export default function Game() {
           )}
         </AnimatePresence>
       </main>
-      Points: {points}
-      <div className="flex flex-row justify-between">
-        <button
-          onClick={getHint}
-          className="bg-blue-600 w-fit text-white rounded-lg px-8 py-4"
-        >
-          Get hint
-        </button>
-        <button
-          onClick={resetBoard}
-          className="bg-red-600 w-fit text-white rounded-lg px-8 py-4"
-        >
-          Reset
-        </button>
+      <div className="flex flex-col gap-8 p-1 sm:p-4">
+        <div className="text-3xl flex gap-8 items-center font-medium">
+          <span>Score:</span>
+          <motion.span
+            className="text-5xl"
+            key={points}
+            animate={{
+              opacity: 1,
+              scale: [0.7, 1],
+            }}
+            transition={{ type: "spring", stiffness: 500, damping: 15 }}
+          >
+            {points.toLocaleString()}
+          </motion.span>
+        </div>
+        <div className="flex flex-row justify-between">
+          <button
+            onClick={getHint}
+            className="bg-blue-600 w-fit text-white rounded-lg px-8 py-4"
+          >
+            Get hint
+          </button>
+          <button
+            onClick={resetBoard}
+            className="bg-red-600 w-fit text-white rounded-lg px-8 py-4"
+          >
+            Reset
+          </button>
+        </div>
       </div>
       {debug ? (
         <>
