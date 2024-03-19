@@ -222,13 +222,13 @@ export default function Game() {
         <div className="flex flex-row justify-between">
           <button
             onClick={getHint}
-            className="bg-blue-600 w-fit text-white rounded-lg px-8 py-4"
+            className="bg-blue-600 w-fit text-white rounded-lg text-2xl font-medium px-8 py-4"
           >
             Get hint
           </button>
           <button
             onClick={resetBoard}
-            className="bg-red-600 w-fit text-white rounded-lg px-8 py-4"
+            className="bg-red-600 w-fit text-white rounded-lg text-2xl font-medium px-8 py-4"
           >
             Reset
           </button>
