@@ -306,17 +306,21 @@ export function uniqueNewMatches(board: Board): MatchedTile[] {
     .sort((a, b) => {
       return b.newValue - a.newValue
     })
-  let seenPositions: Position[] = []
+  let seenPositions: Set<number> = new Set()
   let result: MatchedTile[] = []
   for (const matchValue of matchValues) {
     if (
-      seenPositions.find(
-        ({ x, y }) => x == matchValue.position.x && y == matchValue.position.y,
+      seenPositions.has(positionToNumber(matchValue.position, board)) ||
+      matchValue.matchedTiles.some((mt) =>
+        seenPositions.has(positionToNumber(mt, board)),
       )
     ) {
       continue
     }
-    seenPositions = [...seenPositions, ...matchValue.matchedTiles]
+    seenPositions.add(positionToNumber(matchValue.position, board))
+    matchValue.matchedTiles.forEach((mt) => {
+      seenPositions.add(positionToNumber(mt, board))
+    })
     result = [...result, matchValue]
   }
   return result
