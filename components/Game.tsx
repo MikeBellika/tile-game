@@ -204,11 +204,10 @@ export default function Game() {
           )}
         </AnimatePresence>
       </main>
-      <div className="flex flex-col gap-8 p-1 sm:p-4">
-        <div className="text-3xl flex gap-8 items-center font-medium">
-          <span>Score:</span>
+      <div className="flex flex-col gap-6 p-1 sm:p-4">
+        <div className="text-3xl flex justify-center items-center ">
           <motion.span
-            className="text-5xl"
+            className="text-5xl font-medium"
             key={points}
             animate={{
               opacity: 1,
@@ -222,13 +221,13 @@ export default function Game() {
         <div className="flex flex-row justify-between">
           <button
             onClick={getHint}
-            className="bg-blue-600 w-fit text-white rounded-lg text-2xl font-medium px-8 py-4"
+            className="bg-gradient-to-bl from-indigo-500 to-indigo-800 w-fit text-white rounded-xl text-2xl font-medium px-6 py-2"
           >
             Get hint
           </button>
           <button
             onClick={resetBoard}
-            className="bg-red-600 w-fit text-white rounded-lg text-2xl font-medium px-8 py-4"
+            className="bg-gradient-to-bl from-rose-500 to-rose-800 w-fit text-white rounded-xl text-2xl font-medium px-6 py-2"
           >
             Reset
           </button>
