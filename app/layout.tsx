@@ -16,6 +16,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="w-full h-full">
+      <head>
+        <title>ExponenTile</title>
+      </head>
       <body
         className={`${inter.className} w-full h-full bg-slate-50 dark:bg-slate-950`}
       >
