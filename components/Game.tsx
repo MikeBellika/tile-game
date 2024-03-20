@@ -151,7 +151,7 @@ export default function Game() {
         ref={grid}
       >
         <AnimatePresence>
-          {isGameOver(board) && (
+          {isGameOver(board) && !animating && (
             <motion.div
               className="absolute top-0 left-0 w-full h-1/2 flex items-center justify-center z-20"
               initial={{ opacity: 0, scale: 0.5 }}
