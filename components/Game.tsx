@@ -205,7 +205,8 @@ export default function Game() {
         </AnimatePresence>
       </main>
       <div className="flex flex-col gap-6 p-1 sm:p-4">
-        <div className="text-3xl flex justify-center items-center ">
+        <div className="flex flex-col justify-center items-center ">
+          <span className="text-lg">Score</span>
           <motion.span
             className="text-5xl font-medium"
             key={points}
