@@ -204,7 +204,7 @@ export default function Game() {
           )}
         </AnimatePresence>
       </main>
-      <div className="flex flex-col gap-6 p-1 sm:p-4">
+      <div className="flex flex-col gap-6 p-2 sm:p-4">
         <div className="flex flex-col justify-center items-center ">
           <span className="text-lg">Score</span>
           <motion.span
@@ -222,13 +222,13 @@ export default function Game() {
         <div className="flex flex-row justify-between">
           <button
             onClick={getHint}
-            className="bg-gradient-to-bl from-indigo-500 to-indigo-800 w-fit text-white rounded-xl text-2xl font-medium px-6 py-2"
+            className="bg-gradient-to-bl from-indigo-500 to-indigo-600 w-fit text-white rounded-xl text-lg font-medium px-6 py-2"
           >
             Get hint
           </button>
           <button
             onClick={resetBoard}
-            className="bg-gradient-to-bl from-rose-500 to-rose-800 w-fit text-white rounded-xl text-2xl font-medium px-6 py-2"
+            className="bg-gradient-to-bl from-rose-500 to-rose-600 w-fit text-white rounded-xl text-lg font-medium px-6 py-2"
           >
             Reset
           </button>
