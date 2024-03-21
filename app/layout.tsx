@@ -18,6 +18,7 @@ export default function RootLayout({
     <html lang="en" className="w-full h-full">
       <head>
         <title>ExponenTile</title>
+        <link rel="manifest" href="manifest.json" />
       </head>
       <body
         className={`${inter.className} w-full h-full bg-slate-50 dark:bg-slate-950`}
