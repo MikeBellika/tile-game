@@ -19,6 +19,12 @@ export default function RootLayout({
       <head>
         <title>ExponenTile</title>
         <link rel="manifest" href="manifest.json" />
+        <meta name="theme-color" content="#f8fafc" />
+        <meta
+          name="theme-color"
+          content="#020617"
+          media="(prefers-color-scheme: dark)"
+        />
       </head>
       <body
         className={`${inter.className} w-full h-full bg-slate-50 dark:bg-slate-950`}
