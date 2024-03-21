@@ -422,6 +422,17 @@ export function getContrastTextColor(hexColor: string): string {
   return luminance > 0.5 ? "#101050" : "#fafafa"
 }
 
+export function checkAndSaveHighscore(points: number) {
+  const highscore = getHighScore()
+  if (highscore < points) {
+    document.cookie = `highscore=${points}; expires=2147483647; path=/`
+  }
+}
+
+export function getHighScore(): number {
+  return parseInt(getCookies()["highscore"] ?? "0")
+}
+
 // Function to save the game state to a cookie
 export function saveGameStateToCookie(board: Board, points: number) {
   // Convert board positions to numbers for easier serialization
@@ -436,8 +447,20 @@ export function saveGameStateToCookie(board: Board, points: number) {
 
   // Serialize game state object to JSON and store in a cookie
   const gameStateString = encodeURIComponent(JSON.stringify(gameState))
-  const expires = new Date(Date.now() + 7 * 864e5).toUTCString() // Expires in 7 days
-  document.cookie = `gameState=${gameStateString}; expires=${expires}; path=/`
+  document.cookie = `gameState=${gameStateString}; expires=2147483647; path=/`
+}
+
+function getCookies(): Record<string, string> {
+  const cookieString = document.cookie
+  const cookies = cookieString.split("; ").reduce(
+    (acc, currentCookie) => {
+      const [key, value] = currentCookie.split("=")
+      acc[key] = value
+      return acc
+    },
+    {} as { [key: string]: string },
+  )
+  return cookies
 }
 
 // Function to retrieve the game state from a cookie
@@ -448,15 +471,7 @@ export function getSavedGameState():
       size: number
     }
   | undefined {
-  const cookieString = document.cookie
-  const cookies = cookieString.split("; ").reduce(
-    (acc, currentCookie) => {
-      const [key, value] = currentCookie.split("=")
-      acc[key] = value
-      return acc
-    },
-    {} as { [key: string]: string },
-  )
+  const cookies = getCookies()
 
   const gameStateCookie = cookies["gameState"]
 

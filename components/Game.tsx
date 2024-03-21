@@ -7,7 +7,9 @@ import {
   generateBoard,
   getSavedGameState,
   saveGameStateToCookie,
+  checkAndSaveHighscore,
   useBoard,
+  getHighScore,
 } from "@/hooks/useBoard"
 import {
   motion,
@@ -41,6 +43,8 @@ export default function Game() {
   const [points, setPoints] = useState(savedState?.points ?? 0)
 
   const [debug, _] = useState(false)
+
+  const highscore = getHighScore()
 
   const animationDuration = 0.4
   const transition: Transition = { type: "spring", duration: animationDuration }
@@ -78,6 +82,9 @@ export default function Game() {
   }
   useEffect(() => {
     saveGameStateToCookie(board, points)
+    if (isGameOver(board)) {
+      checkAndSaveHighscore(points)
+    }
   }, [board, points])
 
   function undo() {
@@ -205,19 +212,37 @@ export default function Game() {
         </AnimatePresence>
       </main>
       <div className="flex flex-col gap-6 p-2 sm:p-4">
-        <div className="flex flex-col justify-center items-center ">
-          <span className="text-lg">Score</span>
-          <motion.span
-            className="text-5xl font-medium"
-            key={points}
-            animate={{
-              opacity: 1,
-              scale: [0.7, 1],
-            }}
-            transition={{ type: "spring", stiffness: 500, damping: 15 }}
-          >
-            {points.toLocaleString()}
-          </motion.span>
+        <div className="flex flex-row justify-between ">
+          <div className="items-center flex flex-col">
+            <span className="text-lg">Score</span>
+            <motion.span
+              className="text-5xl font-medium"
+              key={points}
+              animate={{
+                opacity: 1,
+                scale: [0.7, 1],
+              }}
+              transition={{ type: "spring", stiffness: 500, damping: 15 }}
+            >
+              {points.toLocaleString()}
+            </motion.span>
+          </div>
+          <div className="items-center flex flex-col">
+            <span className="text-lg">Highscore</span>
+            <motion.span
+              className="text-5xl font-medium"
+              key={highscore > points ? highscore : points}
+              animate={{
+                opacity: 1,
+                scale: [0.7, 1],
+              }}
+              transition={{ type: "spring", stiffness: 500, damping: 15 }}
+            >
+              {highscore > points
+                ? highscore.toLocaleString()
+                : points.toLocaleString()}
+            </motion.span>
+          </div>
         </div>
         <div className="flex flex-row justify-between">
           <button
