@@ -8,5 +8,6 @@
     }
   ],
   "start_url": "https://bellika.dk/exponentile",
-  "display": "fullscreen"
+  "display": "fullscreen",
+  "theme_color": "#020617"
 }
