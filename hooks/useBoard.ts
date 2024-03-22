@@ -1,4 +1,5 @@
 import { useMemo } from "react"
+import { setCookie, getCookie } from "../utils/cookies"
 
 export type Tile =
   | { id: number; value: number; removed: false }
@@ -425,12 +426,12 @@ export function getContrastTextColor(hexColor: string): string {
 export function checkAndSaveHighscore(points: number) {
   const highscore = getHighScore()
   if (highscore < points) {
-    document.cookie = `highscore=${points}; expires=2147483647; path=/`
+    setCookie("highscore", points, 1000)
   }
 }
 
 export function getHighScore(): number {
-  return parseInt(getCookies()["highscore"] ?? "0")
+  return parseInt(getCookie("highscore") ?? "0")
 }
 
 // Function to save the game state to a cookie
@@ -447,20 +448,7 @@ export function saveGameStateToCookie(board: Board, points: number) {
 
   // Serialize game state object to JSON and store in a cookie
   const gameStateString = encodeURIComponent(JSON.stringify(gameState))
-  document.cookie = `gameState=${gameStateString}; expires=2147483647; path=/`
-}
-
-function getCookies(): Record<string, string> {
-  const cookieString = document.cookie
-  const cookies = cookieString.split("; ").reduce(
-    (acc, currentCookie) => {
-      const [key, value] = currentCookie.split("=")
-      acc[key] = value
-      return acc
-    },
-    {} as { [key: string]: string },
-  )
-  return cookies
+  setCookie("gameState", gameStateString, 1000)
 }
 
 // Function to retrieve the game state from a cookie
@@ -471,9 +459,7 @@ export function getSavedGameState():
       size: number
     }
   | undefined {
-  const cookies = getCookies()
-
-  const gameStateCookie = cookies["gameState"]
+  const gameStateCookie = getCookie("gameState")
 
   if (!gameStateCookie) {
     return undefined
