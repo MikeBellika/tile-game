@@ -20,6 +20,7 @@ import {
 } from "framer-motion"
 import { useEffect, useState } from "react"
 import Tile from "./Tile"
+import Tutorial from "./Tutorial"
 
 export default function Game() {
   const savedState = getSavedGameState()
@@ -153,6 +154,7 @@ export default function Game() {
 
   return (
     <div className="flex flex-col">
+      <Tutorial />
       <main
         className="grid w-screen p-1 sm:p-4 sm:w-full grid-cols-8 grid-rows-8 items-center gap-0.5 sm:gap-2"
         ref={grid}
