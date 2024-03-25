@@ -23,7 +23,7 @@ const GridComponent = () => {
         row.map((cell, cellIndex) => (
           <div
             key={`${rowIndex}-${cellIndex}`}
-            className="border border-gray-400 p-2 flex justify-center items-center cursor-pointer"
+            className="flex cursor-pointer items-center justify-center border border-gray-400 p-2"
             onClick={() => handleClick(rowIndex, cellIndex)} // Pass cellIndex as x and rowIndex as y
           >
             {cell}

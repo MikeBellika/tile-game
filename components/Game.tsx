@@ -156,20 +156,20 @@ export default function Game() {
     <div className="flex flex-col">
       <Tutorial />
       <main
-        className="grid w-screen p-1 sm:p-4 sm:w-full grid-cols-8 grid-rows-8 items-center gap-0.5 sm:gap-2"
+        className="grid w-screen grid-cols-8 grid-rows-8 items-center gap-0.5 p-1 sm:w-full sm:gap-2 sm:p-4"
         ref={grid}
       >
         <AnimatePresence>
           {isGameOver(board) && !animating && (
             <motion.div
-              className="absolute top-0 left-0 w-full h-1/2 flex items-center justify-center z-20"
+              className="absolute left-0 top-0 z-20 flex h-1/2 w-full items-center justify-center"
               initial={{ opacity: 0, scale: 0.5 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0 }}
               transition={{ type: "spring", stiffness: 400, damping: 15 }}
             >
               <div className="">
-                <motion.h1 className="text-blue-100 text-5xl font-bold [text-shadow:_3px_3px_0_#0a9396,_6px_6px_0_#ee9b00,_9px_9px_0_#005f73]">
+                <motion.h1 className="text-5xl font-bold text-blue-100 [text-shadow:_3px_3px_0_#0a9396,_6px_6px_0_#ee9b00,_9px_9px_0_#005f73]">
                   Game Over
                 </motion.h1>
               </div>
@@ -196,7 +196,7 @@ export default function Game() {
                 }}
                 initial={{ y: -80 }}
                 animate={getExitTo({ x, y }) ?? { y: 0 }}
-                className={`w-full sm:size-12 md:size-14 aspect-square ${
+                className={`aspect-square w-full sm:size-12 md:size-14 ${
                   getExitTo({ x, y }) ? "z-0" : "z-10"
                 }`}
                 // drag
@@ -215,7 +215,7 @@ export default function Game() {
       </main>
       <div className="flex flex-col gap-6 p-2 sm:p-4">
         <div className="flex flex-row justify-between ">
-          <div className="items-center flex flex-col">
+          <div className="flex flex-col items-center">
             <span className="text-lg">Score</span>
             <motion.span
               className="text-5xl font-medium"
@@ -229,7 +229,7 @@ export default function Game() {
               {points.toLocaleString()}
             </motion.span>
           </div>
-          <div className="items-center flex flex-col">
+          <div className="flex flex-col items-center">
             <span className="text-lg">Highscore</span>
             <motion.span
               className="text-5xl font-medium"
@@ -249,13 +249,13 @@ export default function Game() {
         <div className="flex flex-row justify-between">
           <button
             onClick={getHint}
-            className="bg-gradient-to-bl from-indigo-500 to-indigo-600 w-fit text-white rounded-xl text-lg font-medium px-6 py-2"
+            className="w-fit rounded-xl bg-gradient-to-bl from-indigo-500 to-indigo-600 px-6 py-2 text-lg font-medium text-white"
           >
             Get hint
           </button>
           <button
             onClick={resetBoard}
-            className="bg-gradient-to-bl from-rose-500 to-rose-600 w-fit text-white rounded-xl text-lg font-medium px-6 py-2"
+            className="w-fit rounded-xl bg-gradient-to-bl from-rose-500 to-rose-600 px-6 py-2 text-lg font-medium text-white"
           >
             Reset
           </button>

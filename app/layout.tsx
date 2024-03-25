@@ -15,7 +15,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className="w-full h-full">
+    <html lang="en" className="h-full w-full">
       <head>
         <title>ExponenTile</title>
         <link rel="manifest" href="manifest.json" />
@@ -27,7 +27,7 @@ export default function RootLayout({
         <meta name="theme-color" content="#f8fafc" />
       </head>
       <body
-        className={`${inter.className} w-full h-full bg-slate-50 dark:bg-slate-950`}
+        className={`${inter.className} h-full w-full bg-slate-50 dark:bg-slate-950`}
       >
         {children}
       </body>
