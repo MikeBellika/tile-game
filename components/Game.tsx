@@ -17,6 +17,7 @@ import {
   Transition,
   useAnimate,
   AnimationSequence,
+  PanInfo,
 } from "framer-motion"
 import { useEffect, useState } from "react"
 import Tile from "./Tile"
@@ -50,6 +51,50 @@ export default function Game() {
   const animationDuration = 0.4
   const transition: Transition = { type: "spring", duration: animationDuration }
 
+  const [panned, setPanned] = useState(false)
+
+  async function onPan(
+    _: MouseEvent | TouchEvent | PointerEvent,
+    info: PanInfo,
+    { x, y }: Position,
+  ) {
+    if (panned) {
+      return
+    }
+    setPanned(true)
+    const offsetThreshold = 25
+    const offsetX = Math.abs(info.offset.x)
+    const offsetY = Math.abs(info.offset.y)
+    if (offsetX > offsetThreshold || offsetY > offsetThreshold) {
+      let swipeToPosition: undefined | Position = undefined
+      if (offsetX > offsetY) {
+        swipeToPosition = info.offset.x > 0 ? { x: x + 1, y } : { x: x - 1, y }
+      } else {
+        swipeToPosition = info.offset.y > 0 ? { y: y + 1, x } : { y: y - 1, x }
+      }
+      await swapTiles({ x, y }, swipeToPosition)
+    }
+
+    setPanned(false)
+  }
+
+  async function swapTiles(a: Position, b: Position) {
+    const boards = swapTile(a, b, board)
+    setAnimating(true)
+    const newBoardsHistory = [...boardsHistory, ...boards]
+    setBoardsHistory(newBoardsHistory)
+    for (const [index, newBoard] of boards.entries()) {
+      setBoard(newBoard.board)
+      setPoints((currentPoints) => currentPoints + newBoard.points)
+      if (index < boards.length - 1) {
+        await new Promise((r) => setTimeout(r, animationDuration * 1000 + 100))
+      }
+    }
+
+    setCurrentRevision(newBoardsHistory.length - 1)
+    setAnimating(false)
+  }
+
   async function clickTile(position: Position) {
     if (animating) {
       return
@@ -65,21 +110,8 @@ export default function Game() {
       setSelectedFrom(undefined)
       return
     }
+    swapTiles(selectedFrom, position)
     setSelectedFrom(undefined)
-    const boards = swapTile(selectedFrom, position, board)
-    setAnimating(true)
-    const newBoardsHistory = [...boardsHistory, ...boards]
-    setBoardsHistory(newBoardsHistory)
-    for (const [index, newBoard] of boards.entries()) {
-      setBoard(newBoard.board)
-      setPoints((currentPoints) => currentPoints + newBoard.points)
-      if (index < boards.length - 1) {
-        await new Promise((r) => setTimeout(r, animationDuration * 1000 + 100))
-      }
-    }
-
-    setCurrentRevision(newBoardsHistory.length - 1)
-    setAnimating(false)
   }
   useEffect(() => {
     saveGameStateToCookie(board, points)
@@ -180,6 +212,7 @@ export default function Game() {
           {board.map((row, y) =>
             row.map((_, x) => (
               <motion.button
+                onPanEnd={(event, info) => onPan(event, info, { x, y })}
                 transition={transition}
                 disabled={animating}
                 layout
