@@ -51,31 +51,23 @@ export default function Game() {
   const animationDuration = 0.4
   const transition: Transition = { type: "spring", duration: animationDuration }
 
-  const [panned, setPanned] = useState(false)
-
   async function onPan(
     _: MouseEvent | TouchEvent | PointerEvent,
     info: PanInfo,
     { x, y }: Position,
   ) {
-    if (panned) {
+    if (animating) {
       return
     }
-    setPanned(true)
-    const offsetThreshold = 25
     const offsetX = Math.abs(info.offset.x)
     const offsetY = Math.abs(info.offset.y)
-    if (offsetX > offsetThreshold || offsetY > offsetThreshold) {
-      let swipeToPosition: undefined | Position = undefined
-      if (offsetX > offsetY) {
-        swipeToPosition = info.offset.x > 0 ? { x: x + 1, y } : { x: x - 1, y }
-      } else {
-        swipeToPosition = info.offset.y > 0 ? { y: y + 1, x } : { y: y - 1, x }
-      }
-      await swapTiles({ x, y }, swipeToPosition)
+    let swipeToPosition: undefined | Position = undefined
+    if (offsetX > offsetY) {
+      swipeToPosition = info.offset.x > 0 ? { x: x + 1, y } : { x: x - 1, y }
+    } else {
+      swipeToPosition = info.offset.y > 0 ? { y: y + 1, x } : { y: y - 1, x }
     }
-
-    setPanned(false)
+    await swapTiles({ x, y }, swipeToPosition)
   }
 
   async function swapTiles(a: Position, b: Position) {
