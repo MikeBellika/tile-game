@@ -51,7 +51,7 @@ export default function Game() {
   const animationDuration = 0.4
   const transition: Transition = { type: "spring", duration: animationDuration }
 
-  async function onPan(
+  async function onPanEnd(
     _: MouseEvent | TouchEvent | PointerEvent,
     info: PanInfo,
     { x, y }: Position,
@@ -204,7 +204,7 @@ export default function Game() {
           {board.map((row, y) =>
             row.map((_, x) => (
               <motion.button
-                onPanEnd={(event, info) => onPan(event, info, { x, y })}
+                onPanEnd={(event, info) => onPanEnd(event, info, { x, y })}
                 transition={transition}
                 disabled={animating}
                 layout
