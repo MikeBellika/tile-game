@@ -16,7 +16,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className="h-full w-full">
+    <html lang="en" className="h-full w-full overscroll-none">
       <head>
         <title>ExponenTile</title>
         <link rel="manifest" href="manifest.json" />
