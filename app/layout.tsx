@@ -28,7 +28,7 @@ export default function RootLayout({
         <meta name="theme-color" content="#f8fafc" />
       </head>
       <body
-        className={`${inter.className} h-full w-full bg-slate-50 dark:bg-slate-950`}
+        className={`${inter.className} h-full w-full bg-slate-50 dark:bg-slate-950 overscroll-none`}
       >
         {children}
         <Analytics />
