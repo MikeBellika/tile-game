@@ -36,10 +36,6 @@ export default function Game() {
   const [selectedFrom, setSelectedFrom] = useState<Position | undefined>(
     undefined,
   )
-  const [boardsHistory, setBoardsHistory] = useState<BoardPoints[]>([
-    { board, points: 0 },
-  ])
-  const [currentRevision, setCurrentRevision] = useState(0)
 
   const [points, setPoints] = useState(savedState?.points ?? 0)
 
@@ -68,8 +64,6 @@ export default function Game() {
     setSelectedFrom(undefined)
     const boards = swapTile(selectedFrom, position, board)
     setAnimating(true)
-    const newBoardsHistory = [...boardsHistory, ...boards]
-    setBoardsHistory(newBoardsHistory)
     for (const [index, newBoard] of boards.entries()) {
       setBoard(newBoard.board)
       setPoints((currentPoints) => currentPoints + newBoard.points)
@@ -77,8 +71,6 @@ export default function Game() {
         await new Promise((r) => setTimeout(r, animationDuration * 1000 + 100))
       }
     }
-
-    setCurrentRevision(newBoardsHistory.length - 1)
     setAnimating(false)
   }
   useEffect(() => {
@@ -87,15 +79,6 @@ export default function Game() {
       checkAndSaveHighscore(points)
     }
   }, [board, points])
-
-  function undo() {
-    setCurrentRevision(currentRevision - 1)
-    setBoard(boardsHistory[currentRevision - 1].board)
-  }
-  function redo() {
-    setCurrentRevision(currentRevision + 1)
-    setBoard(boardsHistory[currentRevision + 1].board)
-  }
 
   function getExitTo({ x, y }: Position): Position | undefined {
     const tile = board[x][y]
@@ -261,23 +244,6 @@ export default function Game() {
           </button>
         </div>
       </div>
-      {debug ? (
-        <>
-          boards history length {boardsHistory.length}
-          <button disabled={currentRevision == 0} onClick={() => undo()}>
-            Undo
-          </button>
-          <button
-            disabled={currentRevision == boardsHistory.length - 1}
-            onClick={() => redo()}
-          >
-            Redo
-          </button>
-          <span>Current revision: {currentRevision}</span>
-        </>
-      ) : (
-        ""
-      )}
     </div>
   )
 }
