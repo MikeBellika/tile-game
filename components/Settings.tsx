@@ -30,6 +30,7 @@ export default function Settings({
               initial={{ opacity: 0 }}
               animate={{ opacity: 100 }}
               exit={{ opacity: 0 }}
+              onClick={() => setOpen(false)}
               className="fixed inset-0 z-40 bg-opacity-75 backdrop-blur-sm transition-opacity"
             />
             <motion.dialog
