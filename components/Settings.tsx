@@ -20,9 +20,7 @@ export default function Settings({
   gamePosition: GamePosition
   setGamePosition: Function
 }) {
-  console.log(animationSpeed)
-
-  const [open, setOpen] = useState(true)
+  const [open, setOpen] = useState(false)
   return (
     <>
       <AnimatePresence>

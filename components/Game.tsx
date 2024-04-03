@@ -22,12 +22,10 @@ import {
 import { useEffect, useState } from "react"
 import Tile from "./Tile"
 import Tutorial from "./Tutorial"
+import Settings from "./Settings"
+import { AnimationSpeeds, useSettings } from "@/hooks/useSettings"
 
-export default function Game({
-  animationDuration,
-}: {
-  animationDuration: number
-}) {
+export default function Game() {
   const savedState = getSavedGameState()
   const {
     board: initialBoard,
@@ -51,6 +49,19 @@ export default function Game({
   const [debug, _] = useState(false)
 
   const highscore = getHighScore()
+
+  const { animationSpeed, setAnimationSpeed, gamePosition, setGamePosition } =
+    useSettings()
+  const animationDuration = AnimationSpeeds[animationSpeed]
+
+  let justify = undefined
+  if (gamePosition == "top") {
+    justify = "justify-start"
+  } else if (gamePosition == "middle") {
+    justify = "justify-center"
+  } else {
+    justify = "justify-end"
+  }
 
   const transition: Transition = { type: "spring", duration: animationDuration }
 
@@ -182,113 +193,118 @@ export default function Game({
   return (
     <div className="flex flex-col">
       <Tutorial />
-      <main
-        className="grid w-screen grid-cols-8 grid-rows-8 items-center gap-0.5 p-1 sm:w-full sm:gap-2 sm:p-4"
-        ref={grid}
+      <motion.div
+        layout
+        className={`flex flex-1 flex-col transition ${justify}`}
       >
-        <AnimatePresence>
-          {isGameOver(board) && !animating && (
-            <motion.div
-              className="absolute left-0 top-0 z-20 flex h-1/2 w-full items-center justify-center"
-              initial={{ opacity: 0, scale: 0.5 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0 }}
-              transition={{ type: "spring", stiffness: 400, damping: 15 }}
-            >
-              <div className="">
-                <motion.h1 className="text-5xl font-bold text-blue-100 [text-shadow:_3px_3px_0_#0a9396,_6px_6px_0_#ee9b00,_9px_9px_0_#005f73]">
-                  Game Over
-                </motion.h1>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-        <AnimatePresence mode="popLayout">
-          {board.map((row, y) =>
-            row.map((_, x) => (
-              <motion.button
-                onPanEnd={(event, info) => onPanEnd(event, info, { x, y })}
-                transition={transition}
-                disabled={animating}
-                layout
-                data-pos={`${x}${y}`}
-                onContextMenu={(event) => {
-                  if (!debug) {
-                    return
-                  }
-                  event.preventDefault()
-                  const newValue = parseInt(prompt("Enter new value") ?? "0")
-                  const newBoard = copyBoard(board)
-                  newBoard[x][y].value = newValue
-                  setBoard(newBoard)
-                }}
-                initial={{ y: -80 }}
-                animate={getExitTo({ x, y }) ?? { y: 0 }}
-                className={`aspect-square w-full sm:size-12 md:size-14 ${
-                  getExitTo({ x, y }) ? "z-0" : "z-10"
-                }`}
-                // drag
-                // dragConstraints={{ top: 5, left: 5, right: 5, bottom: 5 }}
-                key={board[x][y].id}
-                onClick={(_) => clickTile({ x, y })}
+        <main
+          className="grid w-screen grid-cols-8 grid-rows-8 items-center gap-0.5 p-1 sm:w-full sm:gap-2 sm:p-4"
+          ref={grid}
+        >
+          <AnimatePresence>
+            {isGameOver(board) && !animating && (
+              <motion.div
+                className="absolute left-0 top-0 z-20 flex h-1/2 w-full items-center justify-center"
+                initial={{ opacity: 0, scale: 0.5 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0 }}
+                transition={{ type: "spring", stiffness: 400, damping: 15 }}
               >
-                <Tile
-                  tile={board[x][y]}
-                  selected={selectedFrom?.x == x && selectedFrom.y == y}
-                />
-              </motion.button>
-            )),
-          )}
-        </AnimatePresence>
-      </main>
-      <div className="flex flex-col gap-6 p-2 sm:p-4">
-        <div className="flex flex-row justify-between ">
-          <div className="flex flex-col items-center">
-            <span className="text-lg">Score</span>
-            <motion.span
-              className="text-5xl font-medium"
-              key={points}
-              animate={{
-                opacity: 1,
-                scale: [0.7, 1],
-              }}
-              transition={{ type: "spring", stiffness: 500, damping: 15 }}
-            >
-              {points.toLocaleString()}
-            </motion.span>
+                <div className="">
+                  <motion.h1 className="text-5xl font-bold text-blue-100 [text-shadow:_3px_3px_0_#0a9396,_6px_6px_0_#ee9b00,_9px_9px_0_#005f73]">
+                    Game Over
+                  </motion.h1>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+          <AnimatePresence mode="popLayout">
+            {board.map((row, y) =>
+              row.map((_, x) => (
+                <motion.button
+                  onPanEnd={(event, info) => onPanEnd(event, info, { x, y })}
+                  transition={transition}
+                  disabled={animating}
+                  layout
+                  data-pos={`${x}${y}`}
+                  onContextMenu={(event) => {
+                    if (!debug) {
+                      return
+                    }
+                    event.preventDefault()
+                    const newValue = parseInt(prompt("Enter new value") ?? "0")
+                    const newBoard = copyBoard(board)
+                    newBoard[x][y].value = newValue
+                    setBoard(newBoard)
+                  }}
+                  initial={{ y: -80 }}
+                  animate={getExitTo({ x, y }) ?? { y: 0 }}
+                  className={`aspect-square w-full sm:size-12 md:size-14 ${
+                    getExitTo({ x, y }) ? "z-0" : "z-10"
+                  }`}
+                  // drag
+                  // dragConstraints={{ top: 5, left: 5, right: 5, bottom: 5 }}
+                  key={board[x][y].id}
+                  onClick={(_) => clickTile({ x, y })}
+                >
+                  <Tile
+                    tile={board[x][y]}
+                    selected={selectedFrom?.x == x && selectedFrom.y == y}
+                  />
+                </motion.button>
+              )),
+            )}
+          </AnimatePresence>
+        </main>
+        <div className="flex flex-col gap-6 p-2 sm:p-4">
+          <div className="flex flex-row justify-between ">
+            <div className="flex flex-col items-center">
+              <span className="text-lg">Score</span>
+              <motion.span
+                className="text-5xl font-medium"
+                key={points}
+                animate={{
+                  opacity: 1,
+                  scale: [0.7, 1],
+                }}
+                transition={{ type: "spring", stiffness: 500, damping: 15 }}
+              >
+                {points.toLocaleString()}
+              </motion.span>
+            </div>
+            <div className="flex flex-col items-center">
+              <span className="text-lg">Highscore</span>
+              <motion.span
+                className="text-5xl font-medium"
+                key={highscore > points ? highscore : points}
+                animate={{
+                  opacity: 1,
+                  scale: [0.7, 1],
+                }}
+                transition={{ type: "spring", stiffness: 500, damping: 15 }}
+              >
+                {highscore > points
+                  ? highscore.toLocaleString()
+                  : points.toLocaleString()}
+              </motion.span>
+            </div>
           </div>
-          <div className="flex flex-col items-center">
-            <span className="text-lg">Highscore</span>
-            <motion.span
-              className="text-5xl font-medium"
-              key={highscore > points ? highscore : points}
-              animate={{
-                opacity: 1,
-                scale: [0.7, 1],
-              }}
-              transition={{ type: "spring", stiffness: 500, damping: 15 }}
+          <div className="flex flex-row justify-between">
+            <button
+              onClick={getHint}
+              className="w-fit rounded-xl bg-gradient-to-bl from-indigo-500 to-indigo-600 px-6 py-2 text-lg font-medium text-white"
             >
-              {highscore > points
-                ? highscore.toLocaleString()
-                : points.toLocaleString()}
-            </motion.span>
+              Get hint
+            </button>
+            <button
+              onClick={resetBoard}
+              className="w-fit rounded-xl bg-gradient-to-bl from-rose-500 to-rose-600 px-6 py-2 text-lg font-medium text-white"
+            >
+              Reset
+            </button>
           </div>
         </div>
-        <div className="flex flex-row justify-between">
-          <button
-            onClick={getHint}
-            className="w-fit rounded-xl bg-gradient-to-bl from-indigo-500 to-indigo-600 px-6 py-2 text-lg font-medium text-white"
-          >
-            Get hint
-          </button>
-          <button
-            onClick={resetBoard}
-            className="w-fit rounded-xl bg-gradient-to-bl from-rose-500 to-rose-600 px-6 py-2 text-lg font-medium text-white"
-          >
-            Reset
-          </button>
-        </div>
-      </div>
+      </motion.div>
       {debug ? (
         <>
           boards history length {boardsHistory.length}
@@ -306,6 +322,12 @@ export default function Game({
       ) : (
         ""
       )}
+      <Settings
+        setAnimationSpeed={setAnimationSpeed}
+        animationSpeed={animationSpeed}
+        gamePosition={gamePosition}
+        setGamePosition={setGamePosition}
+      />
     </div>
   )
 }
