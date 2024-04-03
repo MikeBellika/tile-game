@@ -23,7 +23,11 @@ import { useEffect, useState } from "react"
 import Tile from "./Tile"
 import Tutorial from "./Tutorial"
 
-export default function Game() {
+export default function Game({
+  animationDuration,
+}: {
+  animationDuration: number
+}) {
   const savedState = getSavedGameState()
   const {
     board: initialBoard,
@@ -48,7 +52,6 @@ export default function Game() {
 
   const highscore = getHighScore()
 
-  const animationDuration = 0.4
   const transition: Transition = { type: "spring", duration: animationDuration }
 
   async function onPanEnd(
