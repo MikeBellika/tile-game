@@ -56,11 +56,11 @@ export default function Game() {
 
   let justify = undefined
   if (gamePosition == "top") {
-    justify = "justify-start"
+    justify = "flex-col justify-start"
   } else if (gamePosition == "middle") {
-    justify = "justify-center"
+    justify = "flex-col justify-center"
   } else {
-    justify = "justify-end"
+    justify = "justify-between flex-col-reverse"
   }
 
   const transition: Transition = { type: "spring", duration: animationDuration }
@@ -193,10 +193,7 @@ export default function Game() {
   return (
     <div className="flex flex-col">
       <Tutorial />
-      <motion.div
-        layout
-        className={`flex flex-1 flex-col transition ${justify}`}
-      >
+      <motion.div layout className={`flex flex-1 transition ${justify}`}>
         <main
           className="grid w-screen grid-cols-8 grid-rows-8 items-center gap-0.5 p-1 sm:w-full sm:gap-2 sm:p-4"
           ref={grid}
