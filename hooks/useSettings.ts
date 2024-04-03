@@ -13,26 +13,36 @@ export const GamePositions = ["top", "middle", "bottom"] as const
 export type GamePosition = (typeof GamePositions)[number]
 
 export function useSettings() {
-  const localStorageAnimationSpeed = localStorage.getItem(
-    "animationSpeed",
-  ) as AnimationSpeed | null
-  const [animationSpeed, setAnimationSpeed] = useState<AnimationSpeed>(
-    localStorageAnimationSpeed || "medium",
-  )
+  // Initial states are now functions to lazily evaluate the initial state
+  // This prevents the code from running on server-side rendering
+  const [animationSpeed, setAnimationSpeed] = useState<AnimationSpeed>(() => {
+    if (typeof window === "undefined") {
+      return "medium" // Default value for server-side rendering
+    }
+    return (
+      (localStorage.getItem("animationSpeed") as AnimationSpeed) || "medium"
+    )
+  })
 
-  const localStorageGamePosition = localStorage.getItem(
-    "gamePosition",
-  ) as GamePosition | null
-  const [gamePosition, setGamePosition] = useState<GamePosition>(
-    localStorageGamePosition || "middle",
-  )
+  const [gamePosition, setGamePosition] = useState<GamePosition>(() => {
+    if (typeof window === "undefined") {
+      return "top" // Default value for server-side rendering
+    }
+    return (localStorage.getItem("gamePosition") as GamePosition) || "top"
+  })
 
+  // Only update localStorage when values change, this will not
+  // overwrite on initial render
   useEffect(() => {
-    localStorage.setItem("animationSpeed", animationSpeed)
+    if (typeof window !== "undefined") {
+      localStorage.setItem("animationSpeed", animationSpeed)
+    }
   }, [animationSpeed])
 
   useEffect(() => {
-    localStorage.setItem("gamePosition", gamePosition)
+    if (typeof window !== "undefined") {
+      localStorage.setItem("gamePosition", gamePosition)
+    }
   }, [gamePosition])
 
   return { animationSpeed, setAnimationSpeed, gamePosition, setGamePosition }
