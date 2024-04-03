@@ -42,8 +42,6 @@ export default function Game() {
   const [boardsHistory, setBoardsHistory] = useState<BoardPoints[]>([
     { board, points: 0 },
   ])
-  const [currentRevision, setCurrentRevision] = useState(0)
-
   const [points, setPoints] = useState(savedState?.points ?? 0)
 
   const [debug, _] = useState(false)
@@ -97,7 +95,6 @@ export default function Game() {
       }
     }
 
-    setCurrentRevision(newBoardsHistory.length - 1)
     setAnimating(false)
   }
 
@@ -125,15 +122,6 @@ export default function Game() {
       checkAndSaveHighscore(points)
     }
   }, [board, points])
-
-  function undo() {
-    setCurrentRevision(currentRevision - 1)
-    setBoard(boardsHistory[currentRevision - 1].board)
-  }
-  function redo() {
-    setCurrentRevision(currentRevision + 1)
-    setBoard(boardsHistory[currentRevision + 1].board)
-  }
 
   function getExitTo({ x, y }: Position): Position | undefined {
     const tile = board[x][y]
@@ -302,23 +290,6 @@ export default function Game() {
           </div>
         </div>
       </motion.div>
-      {debug ? (
-        <>
-          boards history length {boardsHistory.length}
-          <button disabled={currentRevision == 0} onClick={() => undo()}>
-            Undo
-          </button>
-          <button
-            disabled={currentRevision == boardsHistory.length - 1}
-            onClick={() => redo()}
-          >
-            Redo
-          </button>
-          <span>Current revision: {currentRevision}</span>
-        </>
-      ) : (
-        ""
-      )}
       <Settings
         setAnimationSpeed={setAnimationSpeed}
         animationSpeed={animationSpeed}
