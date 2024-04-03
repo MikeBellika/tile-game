@@ -9,7 +9,7 @@ export const AnimationSpeeds = {
 
 export type AnimationSpeed = keyof typeof AnimationSpeeds
 
-export const GamePositions = ["top", "middle", "bottom"] as const
+export const GamePositions = ["top", "bottom"] as const
 export type GamePosition = (typeof GamePositions)[number]
 
 export function useSettings() {
