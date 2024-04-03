@@ -171,7 +171,7 @@ export default function Game() {
 
   return (
     <div
-      className={`flex ${gamePosition == "top" ? "flex-col" : "flex-col-reverse "}`}
+      className={`pb-safe flex ${gamePosition == "top" ? "flex-col" : "flex-col-reverse "}`}
     >
       <Tutorial />
       <motion.div
