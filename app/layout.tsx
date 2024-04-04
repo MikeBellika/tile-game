@@ -1,7 +1,6 @@
 "use client"
 import { Inter } from "next/font/google"
 import "./globals.css"
-import { Analytics } from "@vercel/analytics/react"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -26,7 +25,11 @@ export default function RootLayout({
         className={`${inter.className} h-full w-full overscroll-none bg-slate-50 dark:bg-slate-950`}
       >
         {children}
-        <Analytics />
+        <script
+          defer
+          src="https://static.cloudflareinsights.com/beacon.min.js"
+          data-cf-beacon='{"token": "ef75d67ce4a04caca98866a9a7198357"}'
+        ></script>
       </body>
     </html>
   )
