@@ -39,7 +39,7 @@ export default function Settings({
               exit={{ y: "100%", opacity: 0 }}
               transition={{ type: "tween", duration: 0.15 }}
               open={open}
-              className="fixed z-50 h-min w-full rounded-lg border bg-black p-8 text-black sm:w-1/2  dark:text-white"
+              className="fixed z-50 h-min w-full rounded-lg border bg-white dark:bg-black p-8 text-black sm:w-1/2  dark:text-white"
             >
               <h2 className="whitespace-nowrap text-lg font-semibold leading-none tracking-tight">
                 Settings
