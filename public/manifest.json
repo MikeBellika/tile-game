@@ -1,5 +1,6 @@
 {
   "name": "ExponenTile",
+  "short_name": "ExponenTile",
   "icons": [
     {
       "src": "icons/512.png",
@@ -9,5 +10,10 @@
   ],
   "start_url": "https://bellika.dk/exponentile",
   "display": "fullscreen",
+  "description": "A match 3 game mixed with 2048.",
+  "id": "3c9a162e-21ef-486f-8428-a245ee5e3217",
+  "launch_handler": "auto",
+  "orientation": "portrait",
+  "background_color": "#020617",
   "theme_color": "#020617"
 }
