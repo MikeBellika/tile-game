@@ -23,6 +23,9 @@ export default function Settings({
   const [open, setOpen] = useState(false)
   return (
     <>
+      <button className="py-2" onClick={() => setOpen(true)}>
+        Settings
+      </button>
       <AnimatePresence>
         {open && (
           <div className="fixed bottom-0 z-50">
@@ -39,7 +42,7 @@ export default function Settings({
               exit={{ y: "100%", opacity: 0 }}
               transition={{ type: "tween", duration: 0.15 }}
               open={open}
-              className="fixed z-50 h-min w-full rounded-lg border bg-white dark:bg-black p-8 text-black sm:w-1/2  dark:text-white"
+              className="fixed z-50 h-min w-full rounded-lg border bg-white p-8 text-black sm:w-1/2 dark:bg-black  dark:text-white"
             >
               <h2 className="whitespace-nowrap text-lg font-semibold leading-none tracking-tight">
                 Settings
@@ -109,13 +112,6 @@ export default function Settings({
           </div>
         )}
       </AnimatePresence>
-
-      <button
-        className="py-2 text-gray-700 dark:text-gray-300"
-        onClick={() => setOpen(true)}
-      >
-        Settings
-      </button>
     </>
   )
 }

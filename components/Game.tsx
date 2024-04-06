@@ -180,14 +180,15 @@ export default function Game() {
   }
 
   function share() {
+    const shareUrl = `${window.location.href}?${encodeStateInURL(board, points)}`
     navigator.share({
-      text: `I got ${points} in ExponenTile! Can you beat me? https://bellika.dk/exponentile?${encodeStateInURL(board, points)}`,
+      text: `I got ${points} in ExponenTile! Can you beat me? ${shareUrl}`,
     })
   }
 
   return (
     <div
-      className={`flex pb-8 ${gamePosition == "top" ? "flex-col" : "flex-col-reverse "}`}
+      className={`flex pb-8 ${gamePosition == "top" ? "flex-col" : "flex-col-reverse "} items-center`}
     >
       <Tutorial />
       <motion.div
@@ -336,8 +337,6 @@ export default function Game() {
             </div>
           </div>
           <div className="flex flex-row justify-between">
-            <button onClick={share}>Share</button>
-
             <button
               onClick={getHint}
               className="w-fit rounded-xl bg-gradient-to-bl from-indigo-500 to-indigo-600 px-6 py-2 text-lg font-medium text-white"
@@ -353,12 +352,15 @@ export default function Game() {
           </div>
         </div>
       </motion.div>
-      <Settings
-        setAnimationSpeed={setAnimationSpeed}
-        animationSpeed={animationSpeed}
-        gamePosition={gamePosition}
-        setGamePosition={setGamePosition}
-      />
+      <div className="flex w-1/2 justify-between text-gray-700 dark:text-gray-300">
+        <button onClick={share}>Share</button>
+        <Settings
+          setAnimationSpeed={setAnimationSpeed}
+          animationSpeed={animationSpeed}
+          gamePosition={gamePosition}
+          setGamePosition={setGamePosition}
+        />
+      </div>
     </div>
   )
 }
