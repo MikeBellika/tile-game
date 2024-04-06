@@ -373,7 +373,7 @@ export default function Game() {
           </div>
         </div>
       </motion.div>
-      <div className="flex w-1/2 justify-between text-gray-700 dark:text-gray-300">
+      <div className="flex w-1/2 justify-center text-gray-700 dark:text-gray-300">
         <Settings
           setAnimationSpeed={setAnimationSpeed}
           animationSpeed={animationSpeed}
