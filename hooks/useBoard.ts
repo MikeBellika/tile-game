@@ -495,7 +495,7 @@ export function getSavedGameState():
     return undefined
   }
 
-  getStateFromString(gameStateCookie)
+  return getStateFromString(gameStateCookie)
 }
 export function useBoard(size: number) {
   const board: Board = useMemo(() => generateBoard(size), [size])
