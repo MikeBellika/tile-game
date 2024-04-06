@@ -236,7 +236,12 @@ export default function Game() {
                       Game Over
                     </motion.h1>
                     <Button
-                      onClick={share}
+                      onClick={() => {
+                        const shareUrl = `${window.location.href}?${encodeStateInURL(board, points)}`
+                        navigator.share({
+                          text: `I got ${points} in ExponenTile! Can you beat me? ${shareUrl}`,
+                        })
+                      }}
                       className="mt-6 flex justify-center gap-3"
                     >
                       Share
@@ -353,7 +358,16 @@ export default function Game() {
         </div>
       </motion.div>
       <div className="flex w-1/2 justify-between text-gray-700 dark:text-gray-300">
-        <button onClick={share}>Share</button>
+        <button
+          onClick={() => {
+            const shareUrl = `${window.location.href}?${encodeStateInURL(board, points)}`
+            navigator.share({
+              url: shareUrl,
+            })
+          }}
+        >
+          Share
+        </button>
         <Settings
           setAnimationSpeed={setAnimationSpeed}
           animationSpeed={animationSpeed}
