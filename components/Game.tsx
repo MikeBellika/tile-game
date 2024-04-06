@@ -70,6 +70,7 @@ export default function Game() {
     } else {
       swipeToPosition = info.offset.y > 0 ? { y: y + 1, x } : { y: y - 1, x }
     }
+    setSelectedFrom(undefined)
     await swapTiles({ x, y }, swipeToPosition)
   }
 
