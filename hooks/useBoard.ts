@@ -434,8 +434,7 @@ export function getHighScore(): number {
   return parseInt(getCookie("highscore") ?? "0")
 }
 
-// Function to save the game state to a cookie
-export function saveGameStateToCookie(board: Board, points: number) {
+export function getGameStateAsString(board: Board, points: number) {
   // Convert board positions to numbers for easier serialization
   const boardNumbers = board.flat().map((tile) => tile.value) // Assuming tile.value is a number
 
@@ -447,8 +446,39 @@ export function saveGameStateToCookie(board: Board, points: number) {
   }
 
   // Serialize game state object to JSON and store in a cookie
-  const gameStateString = encodeURIComponent(JSON.stringify(gameState))
+  return encodeURIComponent(JSON.stringify(gameState))
+}
+
+// Function to save the game state to a cookie
+export function saveGameStateToCookie(board: Board, points: number) {
+  const gameStateString = getGameStateAsString(board, points)
   setCookie("gameState", gameStateString, 1000)
+}
+
+export function getStateFromString(s: string): {
+  board: Board
+  points: number
+  size: number
+} {
+  const gameState = JSON.parse(decodeURIComponent(s))
+  const size = gameState.size
+  const boardNumbers = gameState.boardNumbers
+
+  const board: Board = Array.from({ length: size }, (_, y) =>
+    Array.from({ length: size }, (_, x) => {
+      const index = y * size + x
+      return {
+        ...getRandomTile(),
+        value: boardNumbers[index],
+      }
+    }),
+  )
+
+  return {
+    board,
+    points: gameState.points,
+    size,
+  }
 }
 
 // Function to retrieve the game state from a cookie
@@ -465,29 +495,7 @@ export function getSavedGameState():
     return undefined
   }
 
-  // Parse the URL-encoded JSON back to an object
-  const gameState = JSON.parse(decodeURIComponent(gameStateCookie))
-
-  // Reconstruct the board using the size and boardNumbers
-  const size = gameState.size
-  const boardNumbers = gameState.boardNumbers
-
-  // Fix: Reconstruct the board using the correct x and y coordinates
-  const board: Board = Array.from({ length: size }, (_, y) =>
-    Array.from({ length: size }, (_, x) => {
-      const index = y * size + x // Calculate index based on the row-major order
-      return {
-        ...getRandomTile(),
-        value: boardNumbers[index],
-      }
-    }),
-  )
-
-  return {
-    board,
-    points: gameState.points,
-    size,
-  }
+  getStateFromString(gameStateCookie)
 }
 export function useBoard(size: number) {
   const board: Board = useMemo(() => generateBoard(size), [size])

@@ -24,6 +24,8 @@ import Tile from "./Tile"
 import Tutorial from "./Tutorial"
 import Settings from "./Settings"
 import { AnimationSpeeds, useSettings } from "@/hooks/useSettings"
+import { decodeStateFromURL, encodeStateInURL } from "@/utils/sharing"
+import Button from "./Button"
 
 export default function Game() {
   const savedState = getSavedGameState()
@@ -34,7 +36,10 @@ export default function Game() {
     getPositionsThatAlmostMatch,
     isGameOver,
   } = useBoard(8)
-  const [board, setBoard] = useState<Board>(savedState?.board ?? initialBoard)
+  const sharedState = decodeStateFromURL(window.location.search)
+  const [board, setBoard] = useState<Board>(
+    sharedState?.board ?? savedState?.board ?? initialBoard,
+  )
   const [animating, setAnimating] = useState(false)
   const [selectedFrom, setSelectedFrom] = useState<Position | undefined>(
     undefined,
@@ -42,9 +47,13 @@ export default function Game() {
   const [boardsHistory, setBoardsHistory] = useState<BoardPoints[]>([
     { board, points: 0 },
   ])
-  const [points, setPoints] = useState(savedState?.points ?? 0)
+  const [points, setPoints] = useState(
+    sharedState?.points ?? savedState?.points ?? 0,
+  )
 
   const [debug, _] = useState(false)
+
+  const [gameOverClosed, closeGameOver] = useState(false)
 
   const highscore = getHighScore()
 
@@ -109,7 +118,7 @@ export default function Game() {
   }
   useEffect(() => {
     saveGameStateToCookie(board, points)
-    if (isGameOver(board)) {
+    if (isGameOver(board) && sharedState == undefined) {
       checkAndSaveHighscore(points)
     }
   }, [board, points])
@@ -169,6 +178,12 @@ export default function Game() {
     animate(sequence2)
   }
 
+  function share() {
+    navigator.share({
+      text: `I got ${points} in ExponenTile! Can you beat me? https://bellika.dk/exponentile?${encodeStateInURL(board, points)}`,
+    })
+  }
+
   return (
     <div
       className={`flex pb-8 ${gamePosition == "top" ? "flex-col" : "flex-col-reverse "}`}
@@ -183,21 +198,70 @@ export default function Game() {
           ref={grid}
         >
           <AnimatePresence>
-            {isGameOver(board) && !animating && (
-              <motion.div
-                className="absolute left-0 top-0 z-20 flex h-1/2 w-full items-center justify-center"
-                initial={{ opacity: 0, scale: 0.5 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0 }}
-                transition={{ type: "spring", stiffness: 400, damping: 15 }}
-              >
-                <div className="">
-                  <motion.h1 className="text-5xl font-bold text-blue-100 [text-shadow:_3px_3px_0_#0a9396,_6px_6px_0_#ee9b00,_9px_9px_0_#005f73]">
-                    Game Over
-                  </motion.h1>
-                </div>
-              </motion.div>
-            )}
+            {isGameOver(board) &&
+              !animating &&
+              sharedState == undefined &&
+              !gameOverClosed && (
+                <motion.div
+                  className="absolute left-0 top-0 z-20 flex h-full w-full items-center justify-center"
+                  initial={{ opacity: 0, scale: 0.5 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 15 }}
+                >
+                  <div className="flex flex-col rounded bg-white/80 p-6 dark:bg-black/80">
+                    <button
+                      className="self-end"
+                      onClick={() => closeGameOver(true)}
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={1.5}
+                        stroke="currentColor"
+                        className="h-6 w-6 "
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M6 18 18 6M6 6l12 12"
+                        />
+                      </svg>
+                    </button>
+
+                    <motion.h1 className="text-5xl font-bold text-blue-100 [text-shadow:_3px_3px_0_#0a9396,_6px_6px_0_#ee9b00,_9px_9px_0_#005f73]">
+                      Game Over
+                    </motion.h1>
+                    <Button
+                      onClick={share}
+                      className="mt-6 flex justify-center gap-3"
+                    >
+                      Share
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={1.5}
+                        stroke="currentColor"
+                        className="h-6 w-6"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.185 2.25 2.25 0 0 0-3.933 2.185Z"
+                        />
+                      </svg>
+                    </Button>
+                    <Button
+                      onClick={resetBoard}
+                      className="mt-2 flex justify-center gap-3"
+                    >
+                      Play again
+                    </Button>
+                  </div>
+                </motion.div>
+              )}
           </AnimatePresence>
           <AnimatePresence mode="popLayout">
             {board.map((row, y) =>
@@ -271,6 +335,8 @@ export default function Game() {
             </div>
           </div>
           <div className="flex flex-row justify-between">
+            <button onClick={share}>Share</button>
+
             <button
               onClick={getHint}
               className="w-fit rounded-xl bg-gradient-to-bl from-indigo-500 to-indigo-600 px-6 py-2 text-lg font-medium text-white"
