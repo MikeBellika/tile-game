@@ -26,6 +26,7 @@ import Settings from "./Settings"
 import { AnimationSpeeds, useSettings } from "@/hooks/useSettings"
 import { decodeStateFromURL, encodeStateInURL } from "@/utils/sharing"
 import Button from "./Button"
+import SvgGrid from "./SvgGrid"
 
 export default function Game() {
   const savedState = getSavedGameState()
@@ -178,17 +179,11 @@ export default function Game() {
     animate(sequence2)
   }
 
-  function share() {
-    const shareUrl = `${window.location.href}?${encodeStateInURL(board, points)}`
-    navigator.share({
-      text: `I got ${points} in ExponenTile! Can you beat me? ${shareUrl}`,
-    })
-  }
-
   return (
     <div
       className={`flex pb-8 ${gamePosition == "top" ? "flex-col" : "flex-col-reverse "} items-center`}
     >
+      <SvgGrid board={board} />
       <Tutorial />
       <motion.div
         layout
