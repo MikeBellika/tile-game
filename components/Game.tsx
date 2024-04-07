@@ -24,9 +24,12 @@ import Tile from "./Tile"
 import Tutorial from "./Tutorial"
 import Settings from "./Settings"
 import { AnimationSpeeds, useSettings } from "@/hooks/useSettings"
-import { decodeStateFromURL, encodeStateInURL } from "@/utils/sharing"
+import {
+  boardToPngFile,
+  decodeStateFromURL,
+  encodeStateInURL,
+} from "@/utils/sharing"
 import Button from "./Button"
-import SvgGrid from "./SvgGrid"
 
 export default function Game() {
   const savedState = getSavedGameState()
@@ -183,7 +186,6 @@ export default function Game() {
     <div
       className={`flex pb-8 ${gamePosition == "top" ? "flex-col" : "flex-col-reverse "} items-center`}
     >
-      <SvgGrid board={board} />
       <Tutorial />
       <motion.div
         layout
@@ -227,10 +229,12 @@ export default function Game() {
                     Game Over
                   </motion.h1>
                   <Button
-                    onClick={() => {
-                      const shareUrl = `${window.location.href}?${encodeStateInURL(board, points)}`
+                    onClick={async () => {
+                      const shareUrl = `${window.location.origin}${window.location.pathname}?${encodeStateInURL(board, points)}`
+                      const file = await boardToPngFile(board)
                       navigator.share({
                         text: `I got ${points} in ExponenTile! Can you beat me? ${shareUrl}`,
+                        files: [file],
                       })
                     }}
                     className="mt-6 flex justify-center gap-3"
