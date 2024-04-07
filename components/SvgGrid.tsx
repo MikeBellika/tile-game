@@ -1,4 +1,4 @@
-import { Board, getContrastTextColor, getTileColor } from "@/hooks/useBoard"
+import { Board, getTileColor } from "@/hooks/useBoard"
 import { useEffect, useRef, useState } from "react"
 
 const SvgGrid = ({ board }: { board: Board }) => {
@@ -52,10 +52,10 @@ const SvgGrid = ({ board }: { board: Board }) => {
   return (
     <div className="flex h-full w-full flex-col">
       <svg
-        className="fixed h-fit w-fit -translate-x-full"
+        className="h-fit w-fit "
         xmlns="http://www.w3.org/2000/svg"
-        width={board.length * (tileSize + padding) - padding}
-        height={board.length * (tileSize + padding) - padding}
+        width={board.length * (tileSize + padding)}
+        height={board.length * (tileSize + padding)}
         ref={svgRef}
       >
         <defs>
@@ -81,23 +81,15 @@ src: url(${interDataUrl}) format('woff2');
                   y={y1}
                   width={tileSize}
                   height={tileSize}
-                  style={{ fill: tileColor }}
+                  style={{
+                    fill: tileColor,
+                    filter:
+                      tile.value > 9
+                        ? "drop-shadow(0px 0px 5px #ed8936) drop-shadow(2px 2px 3px gold)"
+                        : "",
+                  }}
                   rx="3" // Slightly rounded corners
                 />
-                <text
-                  x={x1 + tileSize / 2} // Center the text in the middle of the rectangle
-                  y={y1 + tileSize / 2} // Adjust this value to center the text vertically
-                  fontFamily="Inter"
-                  style={{
-                    fill: getContrastTextColor(tileColor),
-                    textAnchor: "middle",
-                    fontFamily: "Inter",
-                    fontWeight: "bold",
-                    dominantBaseline: "middle",
-                  }}
-                >
-                  {Math.pow(2, tile.value)}
-                </text>
               </g>
             )
           }),
