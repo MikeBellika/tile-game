@@ -127,7 +127,7 @@ export function generateSvgString(
       const tileColor = getTileColor(tile)
       svgContent += `<g>
                 <rect x="${x1}" y="${y1}" width="${tileSize}" height="${tileSize}" style="fill: ${tileColor}; ${tile.value > 9 ? "filter: drop-shadow(0px 0px 5px #ed8936) drop-shadow(2px 2px 3px gold)" : ""} " rx="3" />
-                <text x="${x1 + tileSize / 2}" y="${y1 + tileSize / 2}" style="fill: ${getContrastTextColor(tileColor)}; text-anchor: middle; font-family: 'InterSvg'; font-weight: bold; dominant-baseline: middle;">
+                <text x="${x1 + tileSize / 2}" y="${y1 + tileSize / 2}" style="fill: ${getContrastTextColor(tileColor)}; text-anchor: middle; font-family: 'InterSvg, Helvetica, sans-serif'; font-weight: bold; dominant-baseline: middle;">
                     ${Math.pow(2, tile.value)}
                 </text>
             </g>`
@@ -149,8 +149,9 @@ export async function boardToPngFile(board: Board): Promise<File> {
   // If this isn't done, the font doens't load on first share (Works when the button is clicked again)
   await document.fonts.load("bold 16px InterSvg")
 
+  await new Promise((r) => setTimeout(r, 100))
+
   const blob = svgStringToBlob(svgString)
-  await document.fonts.load("bold 16px InterSvg")
   const url = URL.createObjectURL(blob)
 
   return new Promise((resolve, reject) => {
