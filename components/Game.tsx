@@ -28,9 +28,9 @@ import {
   boardToPngFile,
   decodeStateFromURL,
   encodeStateInURL,
-  generateSvgString,
 } from "@/utils/sharing"
 import Button from "./Button"
+import SvgGrid from "./SvgGrid"
 
 export default function Game() {
   const savedState = getSavedGameState()
@@ -396,10 +396,8 @@ export default function Game() {
           gamePosition={gamePosition}
           setGamePosition={setGamePosition}
         />
+        <SvgGrid board={board} />
       </div>
     </div>
   )
-}
-function ref<T>() {
-  throw new Error("Function not implemented.")
 }
