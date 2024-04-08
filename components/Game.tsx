@@ -19,7 +19,7 @@ import {
   AnimationSequence,
   PanInfo,
 } from "framer-motion"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import Tile from "./Tile"
 import Tutorial from "./Tutorial"
 import Settings from "./Settings"
@@ -28,6 +28,7 @@ import {
   boardToPngFile,
   decodeStateFromURL,
   encodeStateInURL,
+  generateSvgString,
 } from "@/utils/sharing"
 import Button from "./Button"
 
@@ -182,10 +183,12 @@ export default function Game() {
     animate(sequence1)
     animate(sequence2)
   }
+  const myDiv = useRef<HTMLDivElement>(null)
 
   return (
     <div
       className={`flex pb-8 ${gamePosition == "top" ? "flex-col" : "flex-col-reverse "} items-center`}
+      ref={myDiv}
     >
       <Tutorial />
       <motion.div
@@ -363,6 +366,10 @@ export default function Game() {
             <Button
               onClick={async () => {
                 const shareUrl = `${window.location.origin}${window.location.pathname}?${encodeStateInURL(board, points)}`
+                if (!myDiv?.current) {
+                  return
+                }
+                myDiv.current.innerHTML = generateSvgString(board, 24, 4)
                 const file = await boardToPngFile(board)
                 navigator.share({
                   text: `I got ${points} in ExponenTile! Can you beat me? ${shareUrl}`,
@@ -397,4 +404,7 @@ export default function Game() {
       </div>
     </div>
   )
+}
+function ref<T>() {
+  throw new Error("Function not implemented.")
 }
