@@ -149,7 +149,7 @@ export async function boardToPngFile(board: Board): Promise<File> {
   // If this isn't done, the font doens't load on first share (Works when the button is clicked again)
   await document.fonts.load("bold 16px InterSvg")
 
-  await new Promise((r) => setTimeout(r, 100))
+  await new Promise((r) => setTimeout(r, 1000))
 
   const blob = svgStringToBlob(svgString)
   const url = URL.createObjectURL(blob)
