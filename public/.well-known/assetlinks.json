@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "dk.bellika.exponentile",
+        "sha256_cert_fingerprints": ["89:B5:87:3F:9C:64:C5:C0:18:1C:B2:5E:93:C5:23:D8:55:29:8D:28:88:27:CE:78:60:08:F7:9C:9B:98:2D:48"]
+      }
+    }]
