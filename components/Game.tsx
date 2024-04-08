@@ -366,10 +366,6 @@ export default function Game() {
             <Button
               onClick={async () => {
                 const shareUrl = `${window.location.origin}${window.location.pathname}?${encodeStateInURL(board, points)}`
-                if (!myDiv?.current) {
-                  return
-                }
-                myDiv.current.innerHTML = generateSvgString(board, 24, 4)
                 const file = await boardToPngFile(board)
                 navigator.share({
                   text: `I got ${points} in ExponenTile! Can you beat me? ${shareUrl}`,
