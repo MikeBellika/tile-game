@@ -149,6 +149,8 @@ export async function boardToPngFile(board: Board): Promise<File> {
   // If this isn't done, the font doens't load on first share (Works when the button is clicked again)
   await document.fonts.load("bold 16px InterSvg")
 
+  await new Promise((r) => setTimeout(r, 1000))
+
   const blob = svgStringToBlob(svgString)
   const url = URL.createObjectURL(blob)
 
@@ -163,7 +165,9 @@ export async function boardToPngFile(board: Board): Promise<File> {
         ctx.drawImage(img, 0, 0)
         canvas.toBlob((blob) => {
           if (blob) {
-            const file = new File([blob], "board.png", { type: "image/png" })
+            const file = new File([blob], "ExponenTile.png", {
+              type: "image/png",
+            })
             resolve(file)
           } else {
             reject(new Error("Canvas to Blob conversion failed"))
