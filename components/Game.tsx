@@ -359,6 +359,20 @@ export default function Game() {
             >
               Get hint
             </button>
+            <Button
+              onClick={async () => {
+                const shareUrl = `${window.location.origin}${window.location.pathname}?${encodeStateInURL(board, points)}`
+                const file = await boardToPngFile(board)
+                navigator.share({
+                  text: `I got ${points} in ExponenTile! Can you beat me? ${shareUrl}`,
+                  files: [file],
+                })
+              }}
+              className="mt-6 flex justify-center gap-3"
+            >
+              Share
+            </Button>
+
             <button
               onClick={() => {
                 if (isGameOver(board) || confirm("Are you sure")) {
