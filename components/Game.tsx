@@ -24,12 +24,7 @@ import Tile from "./Tile"
 import Tutorial from "./Tutorial"
 import Settings from "./Settings"
 import { AnimationSpeeds, useSettings } from "@/hooks/useSettings"
-import {
-  boardToPngFile,
-  decodeStateFromURL,
-  drawBoard,
-  encodeStateInURL,
-} from "@/utils/sharing"
+import { decodeStateFromURL, drawBoardToPNG } from "@/utils/sharing"
 import Button from "./Button"
 
 export default function Game() {
@@ -233,7 +228,6 @@ export default function Game() {
                   </motion.h1>
                   <Button
                     onClick={async () => {
-                      const shareUrl = `${window.location.origin}${window.location.pathname}?${encodeStateInURL(board, points)}`
                       const file = await drawBoardToPNG(board)
                       navigator.share({
                         files: [file],
@@ -363,9 +357,7 @@ export default function Game() {
             </button>
             <Button
               onClick={async () => {
-                console.log("hi")
-                const file = await drawBoard(board)
-                console.log({ file })
+                const file = await drawBoardToPNG(board)
                 navigator.share({
                   files: [file],
                 })
