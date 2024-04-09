@@ -24,6 +24,7 @@ import Tile from "./Tile"
 import Tutorial from "./Tutorial"
 import Settings from "./Settings"
 import { AnimationSpeeds, useSettings } from "@/hooks/useSettings"
+import TryTheApp from "./TryTheApp"
 
 export default function Game() {
   const savedState = getSavedGameState()
@@ -293,6 +294,7 @@ export default function Game() {
         gamePosition={gamePosition}
         setGamePosition={setGamePosition}
       />
+      <TryTheApp />
     </div>
   )
 }
