@@ -27,10 +27,10 @@ import { AnimationSpeeds, useSettings } from "@/hooks/useSettings"
 import {
   boardToPngFile,
   decodeStateFromURL,
+  drawBoard,
   encodeStateInURL,
 } from "@/utils/sharing"
 import Button from "./Button"
-import SvgGrid from "./SvgGrid"
 
 export default function Game() {
   const savedState = getSavedGameState()
@@ -234,9 +234,8 @@ export default function Game() {
                   <Button
                     onClick={async () => {
                       const shareUrl = `${window.location.origin}${window.location.pathname}?${encodeStateInURL(board, points)}`
-                      const file = await boardToPngFile(board)
+                      const file = await drawBoardToPNG(board)
                       navigator.share({
-                        text: `I got ${points} in ExponenTile! Can you beat me? ${shareUrl}`,
                         files: [file],
                       })
                     }}
@@ -364,10 +363,10 @@ export default function Game() {
             </button>
             <Button
               onClick={async () => {
-                const shareUrl = `${window.location.origin}${window.location.pathname}?${encodeStateInURL(board, points)}`
-                const file = await boardToPngFile(board)
+                console.log("hi")
+                const file = await drawBoard(board)
+                console.log({ file })
                 navigator.share({
-                  text: `I got ${points} in ExponenTile! Can you beat me? ${shareUrl}`,
                   files: [file],
                 })
               }}
@@ -396,7 +395,6 @@ export default function Game() {
           gamePosition={gamePosition}
           setGamePosition={setGamePosition}
         />
-        <SvgGrid board={board} />
       </div>
     </div>
   )
