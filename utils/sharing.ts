@@ -183,3 +183,58 @@ export async function boardToPngFile(board: Board): Promise<File> {
     img.src = url
   })
 }
+
+export function drawBoardToPNG(board: Board): Promise<File> {
+  return new Promise((resolve, reject) => {
+    const canvas = document.createElement("canvas")
+    const tileSize = 44
+    const gap = 2
+    const boardSize = 8 // Assuming 8x8 board, adjust according to your actual board size
+    canvas.width = boardSize * (tileSize + gap) - gap // Adjust canvas size as necessary
+    canvas.height = boardSize * (tileSize + gap) - gap // Adjust canvas size as necessary
+    const ctx = canvas.getContext("2d")
+
+    if (!ctx) {
+      reject(new Error("Could not get canvas context"))
+      return
+    }
+
+    // Drawing logic
+    board.forEach((row, x) => {
+      row.forEach((tile, y) => {
+        const xPos = x * (tileSize + gap)
+        const yPos = y * (tileSize + gap)
+        const tileColor = getTileColor(tile)
+
+        // Draw rounded rectangle tile
+        console.log("now drawing with", tileColor)
+        const path = new Path2D()
+        path.roundRect(xPos, yPos, tileSize, tileSize, 5)
+        ctx.fillStyle = tileColor
+        ctx.fill(path)
+
+        // Determine text color based on tile color and draw text
+        const textColor = getContrastTextColor(tileColor)
+        ctx.fillStyle = textColor
+        ctx.textAlign = "center"
+        ctx.textBaseline = "middle"
+        ctx.font = `bold 16px ${window.getComputedStyle(document.body, null).fontFamily}` // Customize the font as necessary
+        ctx.fillText(
+          Math.pow(2, tile.value).toString(),
+          xPos + tileSize / 2,
+          yPos + tileSize / 2,
+        )
+      })
+    })
+
+    // Convert canvas to Blob, then to File
+    canvas.toBlob((blob) => {
+      if (blob) {
+        const file = new File([blob], "ExponenTile.png", { type: "image/png" })
+        resolve(file)
+      } else {
+        reject(new Error("Canvas to Blob conversion failed"))
+      }
+    }, "image/png")
+  })
+}
