@@ -50,6 +50,7 @@ export default function Game() {
   const [points, setPoints] = useState(
     sharedState?.points ?? savedState?.points ?? 0,
   )
+  const [moves, setMoves] = useState(0)
 
   const [debug, _] = useState(false)
 
@@ -85,6 +86,7 @@ export default function Game() {
 
   async function swapTiles(a: Position, b: Position) {
     const boards = swapTile(a, b, board)
+    setMoves((moves) => moves + 1)
     setAnimating(true)
     const newBoardsHistory = [...boardsHistory, ...boards]
     setBoardsHistory(newBoardsHistory)
@@ -229,7 +231,7 @@ export default function Game() {
                   </motion.h1>
                   <Button
                     onClick={async () => {
-                      const file = await drawBoardToPNG(board)
+                      const file = await drawBoardToPNG(board, moves)
                       navigator.share({
                         files: [file],
                       })
@@ -356,9 +358,10 @@ export default function Game() {
             >
               Get hint
             </button>
+            {moves}
             <Button
               onClick={async () => {
-                const file = await drawBoardToPNG(board)
+                const file = await drawBoardToPNG(board, moves)
                 navigator.share({
                   files: [file],
                 })
