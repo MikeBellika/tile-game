@@ -357,7 +357,6 @@ export default function Game() {
             >
               Get hint
             </button>
-            {moves}
             <Button
               onClick={async () => {
                 const file = await drawBoardToPNG(board, moves)
