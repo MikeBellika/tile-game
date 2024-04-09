@@ -184,14 +184,14 @@ export async function boardToPngFile(board: Board): Promise<File> {
   })
 }
 
-export function drawBoardToPNG(board: Board): Promise<File> {
+export function drawBoardToPNG(board: Board, moves: number): Promise<File> {
   return new Promise((resolve, reject) => {
     const canvas = document.createElement("canvas")
     const tileSize = 44
     const gap = 2
     const boardSize = 8 // Assuming 8x8 board, adjust according to your actual board size
     canvas.width = boardSize * (tileSize + gap) - gap // Adjust canvas size as necessary
-    canvas.height = boardSize * (tileSize + gap) - gap // Adjust canvas size as necessary
+    canvas.height = boardSize * (tileSize + gap) - gap + 22 // Adjust canvas size as necessary
     const ctx = canvas.getContext("2d")
 
     if (!ctx) {
@@ -199,6 +199,7 @@ export function drawBoardToPNG(board: Board): Promise<File> {
       return
     }
 
+    const fontName = window.getComputedStyle(document.body, null).fontFamily
     // Drawing logic
     board.forEach((row, x) => {
       row.forEach((tile, y) => {
@@ -207,7 +208,6 @@ export function drawBoardToPNG(board: Board): Promise<File> {
         const tileColor = getTileColor(tile)
 
         // Draw rounded rectangle tile
-        console.log("now drawing with", tileColor)
         const path = new Path2D()
         path.roundRect(xPos, yPos, tileSize, tileSize, 5)
         ctx.fillStyle = tileColor
@@ -218,7 +218,8 @@ export function drawBoardToPNG(board: Board): Promise<File> {
         ctx.fillStyle = textColor
         ctx.textAlign = "center"
         ctx.textBaseline = "middle"
-        ctx.font = `bold 16px ${window.getComputedStyle(document.body, null).fontFamily}` // Customize the font as necessary
+        // next/font outputs unpredictable font names. We could get it with inter.style.fontFamily but then we'd have to drill that down through the entire app from layout
+        ctx.font = `bold 16px ${fontName}` // Customize the font as necessary
         ctx.fillText(
           Math.pow(2, tile.value).toString(),
           xPos + tileSize / 2,
@@ -226,6 +227,22 @@ export function drawBoardToPNG(board: Board): Promise<File> {
         )
       })
     })
+    ctx.font = `bold 16px ${fontName}` // Customize the font as necessary
+    ctx.fillStyle = "white"
+    ctx.textAlign = "left"
+    ctx.textBaseline = "middle"
+    ctx.fillText(
+      `Moves: ${moves.toLocaleString("en-US")}`,
+      gap,
+      (boardSize + 0) * (tileSize + gap) + 4 * gap,
+    )
+    ctx.textAlign = "right"
+    ctx.textBaseline = "middle"
+    ctx.fillText(
+      `ExponenTile`,
+      boardSize * (tileSize + gap) - gap,
+      (boardSize + 0) * (tileSize + gap) + 4 * gap,
+    )
 
     // Convert canvas to Blob, then to File
     canvas.toBlob((blob) => {
