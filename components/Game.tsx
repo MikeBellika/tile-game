@@ -358,18 +358,6 @@ export default function Game() {
             >
               Get hint
             </button>
-            <Button
-              onClick={async () => {
-                const file = await drawBoardToPNG(board, moves)
-                navigator.share({
-                  files: [file],
-                })
-              }}
-              className="mt-6 flex justify-center gap-3"
-            >
-              Share
-            </Button>
-
             <button
               onClick={() => {
                 if (isGameOver(board) || confirm("Are you sure")) {
