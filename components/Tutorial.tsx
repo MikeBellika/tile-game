@@ -1,9 +1,10 @@
 import { getCookie, setCookie } from "@/utils/cookies"
+import { finishedTutorial, isTutorialDone } from "@/utils/storedState"
 import { AnimatePresence, motion } from "framer-motion"
 import { useState } from "react"
 
 export default function Tutorial() {
-  const doneTutorial = getCookie("doneTutorial") != undefined
+  const doneTutorial = isTutorialDone()
   const [step, setStep] = useState(0)
   const [open, setOpen] = useState(!doneTutorial)
   const variants = {
@@ -14,7 +15,7 @@ export default function Tutorial() {
 
   function exitTutorial() {
     setOpen(false)
-    setCookie("doneTutorial", 1, 1000)
+    finishedTutorial()
   }
   const steps = [
     <motion.div
