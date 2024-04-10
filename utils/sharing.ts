@@ -193,9 +193,11 @@ export function drawBoardToPNG(
     const canvas = document.createElement("canvas")
     const tileSize = 64
     const gap = 3
-    const boardSize = 8 // Assuming 8x8 board, adjust according to your actual board size
+    const footerFontSize = 16
+    const boardSize = board.length // Assuming 8x8 board, adjust according to your actual board size
+    const footerSize = gap * boardSize + footerFontSize
     canvas.width = boardSize * (tileSize + gap) - gap // Adjust canvas size as necessary
-    canvas.height = boardSize * (tileSize + gap) - gap + (gap * boardSize + 16) // Adjust canvas size as necessary
+    canvas.height = boardSize * (tileSize + gap) - gap + footerSize // Adjust canvas size as necessary
     const ctx = canvas.getContext("2d")
 
     if (!ctx) {
@@ -236,10 +238,10 @@ export function drawBoardToPNG(
     ctx.shadowBlur = 2
     ctx.fillText(
       score.toLocaleString("en-US"),
-      canvas.height / 2,
+      (canvas.height - footerSize) / 2,
       canvas.width / 2,
     )
-    ctx.font = `bold 16px ${fontName}`
+    ctx.font = `bold ${footerFontSize}px ${fontName}`
 
     ctx.fillStyle = "white"
     ctx.textAlign = "left"
