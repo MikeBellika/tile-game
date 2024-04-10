@@ -230,7 +230,7 @@ export default function Game() {
                   </motion.h1>
                   <Button
                     onClick={async () => {
-                      const file = await drawBoardToPNG(board, moves)
+                      const file = await drawBoardToPNG(board, moves, points)
                       navigator.share({
                         files: [file],
                       })

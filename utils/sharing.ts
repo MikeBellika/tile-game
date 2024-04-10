@@ -184,10 +184,14 @@ export async function boardToPngFile(board: Board): Promise<File> {
   })
 }
 
-export function drawBoardToPNG(board: Board, moves: number): Promise<File> {
+export function drawBoardToPNG(
+  board: Board,
+  moves: number,
+  score: number,
+): Promise<File> {
   return new Promise((resolve, reject) => {
     const canvas = document.createElement("canvas")
-    const tileSize = 44
+    const tileSize = 64
     const gap = 2
     const boardSize = 8 // Assuming 8x8 board, adjust according to your actual board size
     canvas.width = boardSize * (tileSize + gap) - gap // Adjust canvas size as necessary
@@ -219,7 +223,7 @@ export function drawBoardToPNG(board: Board, moves: number): Promise<File> {
         ctx.textAlign = "center"
         ctx.textBaseline = "middle"
         // next/font outputs unpredictable font names. We could get it with inter.style.fontFamily but then we'd have to drill that down through the entire app from layout
-        ctx.font = `bold 16px ${fontName}` // Customize the font as necessary
+        ctx.font = `bold 22px ${fontName}` // Customize the font as necessary
         ctx.fillText(
           Math.pow(2, tile.value).toString(),
           xPos + tileSize / 2,
@@ -227,7 +231,16 @@ export function drawBoardToPNG(board: Board, moves: number): Promise<File> {
         )
       })
     })
-    ctx.font = `bold 16px ${fontName}` // Customize the font as necessary
+    ctx.font = `bold 64px ${fontName}`
+    ctx.shadowColor = "black"
+    ctx.shadowBlur = 2
+    ctx.fillText(
+      score.toLocaleString("en-US"),
+      canvas.height / 2,
+      canvas.width / 2,
+    )
+    ctx.font = `bold 16px ${fontName}`
+
     ctx.fillStyle = "white"
     ctx.textAlign = "left"
     ctx.textBaseline = "middle"
@@ -236,6 +249,7 @@ export function drawBoardToPNG(board: Board, moves: number): Promise<File> {
       gap,
       (boardSize + 0) * (tileSize + gap) + 4 * gap,
     )
+
     ctx.textAlign = "right"
     ctx.textBaseline = "middle"
     ctx.fillText(
