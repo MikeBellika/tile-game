@@ -1,9 +1,15 @@
-"use client"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import { Toaster } from "@/components/ui/toaster"
+import { Viewport } from "next"
 
 const inter = Inter({ subsets: ["latin"] })
+export const viewport: Viewport = {
+  viewportFit: "cover",
+  width: "device-width",
+  initialScale: 1,
+  userScalable: false,
+}
 
 export default function RootLayout({
   children,
