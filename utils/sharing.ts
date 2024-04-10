@@ -192,10 +192,10 @@ export function drawBoardToPNG(
   return new Promise((resolve, reject) => {
     const canvas = document.createElement("canvas")
     const tileSize = 64
-    const gap = 2
+    const gap = 3
     const boardSize = 8 // Assuming 8x8 board, adjust according to your actual board size
     canvas.width = boardSize * (tileSize + gap) - gap // Adjust canvas size as necessary
-    canvas.height = boardSize * (tileSize + gap) - gap + 22 // Adjust canvas size as necessary
+    canvas.height = boardSize * (tileSize + gap) - gap + (gap * boardSize + 16) // Adjust canvas size as necessary
     const ctx = canvas.getContext("2d")
 
     if (!ctx) {
@@ -213,7 +213,7 @@ export function drawBoardToPNG(
 
         // Draw rounded rectangle tile
         const path = new Path2D()
-        path.roundRect(xPos, yPos, tileSize, tileSize, 5)
+        path.roundRect(xPos, yPos, tileSize, tileSize, 7)
         ctx.fillStyle = tileColor
         ctx.fill(path)
 
