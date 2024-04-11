@@ -25,17 +25,22 @@ export default function ShareButton({
     <Button
       onClick={async () => {
         const file = await drawBoardToPNG(board, moves, points)
-        if (canShareClipboard) {
-          navigator.clipboard.write([
-            new ClipboardItem({
-              "image/png": file,
-            }),
-          ])
-          toast({ description: "Copied image to clipboard!" })
-        } else {
-          navigator.share({
-            files: [file],
-          })
+        try {
+          if (canShareFile) {
+            navigator.share({
+              files: [file],
+            })
+          } else {
+            await navigator.clipboard.write([
+              new ClipboardItem({
+                "image/png": file,
+              }),
+            ])
+            toast({ description: "Copied image to clipboard!" })
+          }
+        } catch (e) {
+          console.error(e)
+          toast({ description: "Sharing failed.", variant: "destructive" })
         }
       }}
       className="flex justify-center gap-3"
