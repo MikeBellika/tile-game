@@ -222,10 +222,11 @@ export default function Game() {
                   <motion.h1 className="mb-6 text-5xl font-bold text-blue-100 [text-shadow:_3px_3px_0_#0a9396,_6px_6px_0_#ee9b00,_9px_9px_0_#005f73]">
                     Game Over
                   </motion.h1>
-                  {navigator.canShare &&
+                  {(navigator.canShare &&
                     navigator.canShare({
                       text: "ExponenTile",
-                    }) && (
+                    })) ||
+                    (navigator.clipboard && (
                       <Button
                         onClick={async () => {
                           const file = await drawBoardToPNG(
@@ -233,9 +234,17 @@ export default function Game() {
                             moves,
                             points,
                           )
-                          navigator.share({
-                            files: [file],
-                          })
+                          if (navigator.canShare({ files: [file] })) {
+                            navigator.share({
+                              files: [file],
+                            })
+                          } else {
+                            navigator.clipboard.write([
+                              new ClipboardItem({
+                                "image/png": file,
+                              }),
+                            ])
+                          }
                         }}
                         className="flex justify-center gap-3"
                       >
@@ -255,7 +264,7 @@ export default function Game() {
                           />
                         </svg>
                       </Button>
-                    )}
+                    ))}
                   <Button
                     onClick={() => {
                       resetBoard()
