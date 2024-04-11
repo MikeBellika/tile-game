@@ -1,6 +1,7 @@
 "use client"
 import { Inter } from "next/font/google"
 import "./globals.css"
+import { Toaster } from "@/components/ui/toaster"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -25,6 +26,7 @@ export default function RootLayout({
         className={`${inter.className} h-full w-full overscroll-none bg-slate-50 dark:bg-slate-950`}
       >
         {children}
+        <Toaster />
         <script
           defer
           src="https://static.cloudflareinsights.com/beacon.min.js"
