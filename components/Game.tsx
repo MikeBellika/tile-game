@@ -24,7 +24,7 @@ import Tile from "./Tile"
 import Tutorial from "./Tutorial"
 import Settings from "./Settings"
 import { AnimationSpeeds, useSettings } from "@/hooks/useSettings"
-import { decodeStateFromURL, drawBoardToPNG } from "@/utils/sharing"
+import { drawBoardToPNG } from "@/utils/sharing"
 import Button from "./Button"
 
 export default function Game() {
@@ -36,10 +36,7 @@ export default function Game() {
     getPositionsThatAlmostMatch,
     isGameOver,
   } = useBoard(8)
-  const sharedState = decodeStateFromURL(window.location.search)
-  const [board, setBoard] = useState<Board>(
-    sharedState?.board ?? savedState?.board ?? initialBoard,
-  )
+  const [board, setBoard] = useState<Board>(savedState?.board ?? initialBoard)
   const [animating, setAnimating] = useState(false)
   const [selectedFrom, setSelectedFrom] = useState<Position | undefined>(
     undefined,
@@ -47,9 +44,7 @@ export default function Game() {
   const [boardsHistory, setBoardsHistory] = useState<BoardPoints[]>([
     { board, points: 0 },
   ])
-  const [points, setPoints] = useState(
-    sharedState?.points ?? savedState?.points ?? 0,
-  )
+  const [points, setPoints] = useState(savedState?.points ?? 0)
   const [moves, setMoves] = useState(0)
 
   const [debug, _] = useState(false)
@@ -119,11 +114,9 @@ export default function Game() {
     setSelectedFrom(undefined)
   }
   useEffect(() => {
-    if (sharedState == undefined) {
-      saveGameStateToCookie(board, points)
-      if (isGameOver(board)) {
-        checkAndSaveHighscore(points)
-      }
+    saveGameStateToCookie(board, points)
+    if (isGameOver(board)) {
+      checkAndSaveHighscore(points)
     }
   }, [board, points])
 
@@ -255,20 +248,6 @@ export default function Game() {
                   </Button>
                   <Button
                     onClick={() => {
-                      const savedState = getSavedGameState()
-                      if (
-                        sharedState != undefined &&
-                        savedState &&
-                        !isGameOver(savedState.board)
-                      ) {
-                        if (
-                          !confirm(
-                            "Are you sure? You have an existing game that will be overwritten if you start a new game.",
-                          )
-                        ) {
-                          return
-                        }
-                      }
                       resetBoard()
                     }}
                     className="mt-2 flex justify-center gap-3"
