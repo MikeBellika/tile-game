@@ -24,18 +24,25 @@ export default function ShareButton({
   return (
     <Button
       onClick={async () => {
-        const file = await drawBoardToPNG(board, moves, points)
+        // ATTENTION:::::: ⛔ ⛔
+        // Do not insert any await before `clipboard.write` has been called
+        // Safari does only allows copying after user interaction.
+        // If something is awaited before `clipboard.write` is called Safari can't detect that it happened by user interaction
         try {
           if (canShareFile) {
+            const file = await drawBoardToPNG(board, moves, points)
             navigator.share({
               files: [file],
             })
           } else {
-            await navigator.clipboard.write([
-              new ClipboardItem({
-                "image/png": file,
-              }),
-            ])
+            const clipboardItem = new ClipboardItem({
+              // Evil hack to get sharing working on safari
+              // https://developer.apple.com/forums/thread/691873
+              "image/png": drawBoardToPNG(board, moves, points).then(
+                (file) => new Blob([file], { type: "image/png" }),
+              ),
+            })
+            await navigator.clipboard.write([clipboardItem])
             toast({ description: "Copied image to clipboard!" })
           }
         } catch (e) {
