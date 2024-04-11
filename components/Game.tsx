@@ -219,7 +219,7 @@ export default function Game() {
                     </svg>
                   </button>
 
-                  <motion.h1 className="text-5xl font-bold text-blue-100 [text-shadow:_3px_3px_0_#0a9396,_6px_6px_0_#ee9b00,_9px_9px_0_#005f73]">
+                  <motion.h1 className="mb-6 text-5xl font-bold text-blue-100 [text-shadow:_3px_3px_0_#0a9396,_6px_6px_0_#ee9b00,_9px_9px_0_#005f73]">
                     Game Over
                   </motion.h1>
                   {navigator.canShare && navigator.canShare() && (
@@ -230,7 +230,7 @@ export default function Game() {
                           files: [file],
                         })
                       }}
-                      className="mt-6 flex justify-center gap-3"
+                      className="flex justify-center gap-3"
                     >
                       Share
                       <svg
