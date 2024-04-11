@@ -339,7 +339,7 @@ export default function Game() {
             </button>
             <button
               onClick={() => {
-                if (isGameOver(board) || confirm("Are you sure")) {
+                if (isGameOver(board) || confirm("Are you sure?")) {
                   resetBoard()
                 }
               }}
