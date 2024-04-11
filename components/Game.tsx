@@ -144,7 +144,7 @@ export default function Game() {
 
   function resetBoard(): void {
     saveGameStateToCookie(generateBoard(8), 0)
-    window.location.href = window.location.href.split("?")[0]
+    window.location.reload()
   }
 
   function getHint(): void {
