@@ -36,7 +36,7 @@ export default function Tile({
       whileTap={{ scale: 0.98 }}
       transition={{ type: "spring", stiffness: 700, damping: 20 }}
       style={{ background: color, color: getContrastTextColor(color) }}
-      className={`flex h-full w-full items-center justify-center rounded text-xl font-bold text-black transition-colors duration-700 md:text-2xl ${
+      className={`flex h-full w-full select-none items-center justify-center rounded text-xl font-bold text-black transition-colors duration-700 md:text-2xl ${
         selected ? "ring ring-yellow-400" : ""
       } ${tile.value > 10 ? "shadow-[0px_0px_20px_10px_#ed8936]" : ""}`}
       ref={scope}
