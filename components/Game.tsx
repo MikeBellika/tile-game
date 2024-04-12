@@ -24,7 +24,6 @@ import Tile from "./Tile"
 import Tutorial from "./Tutorial"
 import Settings from "./Settings"
 import { AnimationSpeeds, useSettings } from "@/hooks/useSettings"
-import { drawBoardToPNG } from "@/utils/sharing"
 import Button from "./Button"
 import ShareButton from "./ShareButton"
 
