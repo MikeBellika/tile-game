@@ -24,10 +24,10 @@ export default function ShareButton({
   return (
     <Button
       onClick={async () => {
-        // ATTENTION:::::: ⛔ ⛔
-        // Do not insert any await before `clipboard.write` has been called
-        // Safari does only allows copying after user interaction.
-        // If something is awaited before `clipboard.write` is called Safari can't detect that it happened by user interaction
+        // ⛔⛔⛔⛔⛔⛔⛔⛔ATTENTION⛔⛔⛔⛔⛔⛔⛔⛔
+        // Do not await ANY promises before `clipboard.write` has been called.
+        // Safari only allows copying after user interaction.
+        // If something is awaited before `clipboard.write` is called Safari can't detect that it happened by user interaction.
         try {
           if (canShareFile) {
             const file = await drawBoardToPNG(board, moves, points)
