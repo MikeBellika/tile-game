@@ -23,9 +23,6 @@ export default function Settings({
   const [open, setOpen] = useState(false)
   return (
     <>
-      <button className="py-2" onClick={() => setOpen(true)}>
-        Settings
-      </button>
       <AnimatePresence>
         {open && (
           <div className="fixed bottom-0 z-50">
@@ -113,10 +110,7 @@ export default function Settings({
         )}
       </AnimatePresence>
 
-      <button
-        className="py-2 text-gray-700 dark:text-gray-300"
-        onClick={() => setOpen(true)}
-      >
+      <button className="py-2" onClick={() => setOpen(true)}>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="24"
