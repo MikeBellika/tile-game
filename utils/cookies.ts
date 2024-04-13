@@ -20,3 +20,6 @@ export function getCookie(name: string) {
     if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length)
   }
 }
+export function removeCookie(name: string): void {
+  document.cookie = `${encodeURIComponent(name)}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`
+}
