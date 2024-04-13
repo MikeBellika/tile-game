@@ -5,8 +5,6 @@ import {
   Position,
   copyBoard,
   generateBoard,
-  getSavedGameState,
-  saveGameStateToCookie,
   useBoard,
 } from "@/hooks/useBoard"
 import {
@@ -24,13 +22,17 @@ import Tile from "./Tile"
 import Tutorial from "./Tutorial"
 import Settings from "./Settings"
 import { AnimationSpeeds, useSettings } from "@/hooks/useSettings"
-import { getHighscore, setHighscore } from "@/utils/storedState"
+import {
+  getGameState,
+  getHighscore,
+  saveGameState,
+  setHighscore,
+} from "@/utils/storedState"
 import { boardContains2048Tile } from "@/utils/achievements"
 import Button from "./Button"
 import ShareButton from "./ShareButton"
 
 export default function Game() {
-  const savedState = getSavedGameState()
   const {
     board: initialBoard,
     isAdjacent,
@@ -38,7 +40,25 @@ export default function Game() {
     getPositionsThatAlmostMatch,
     isGameOver,
   } = useBoard(8)
-  const [board, setBoard] = useState<Board>(savedState?.board ?? initialBoard)
+  const [board, setBoard] = useState<Board>(initialBoard)
+  const [points, setPoints] = useState(0)
+  const [moves, setMoves] = useState(0)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function initSavedState() {
+      const gameState = await getGameState()
+      if (!gameState || gameState.points == 0) {
+        setLoading(false)
+        return
+      }
+      setBoard(gameState.board)
+      setPoints(gameState.points)
+      setMoves(gameState.moves)
+      setLoading(false)
+    }
+    initSavedState()
+  }, [])
   const [animating, setAnimating] = useState(false)
   const [selectedFrom, setSelectedFrom] = useState<Position | undefined>(
     undefined,
@@ -46,8 +66,6 @@ export default function Game() {
   const [boardsHistory, setBoardsHistory] = useState<BoardPoints[]>([
     { board, points: 0 },
   ])
-  const [points, setPoints] = useState(savedState?.points ?? 0)
-  const [moves, setMoves] = useState(0)
 
   const [debug, _] = useState(false)
 
@@ -144,7 +162,7 @@ export default function Game() {
   }
 
   useEffect(() => {
-    saveGameStateToCookie(board, points)
+    saveGameState(board, points, moves)
     async function checkHighscore() {
       if (isGameOver(board) && !animating) {
         if (player && animationSpeed == "instant") {
@@ -186,7 +204,7 @@ export default function Game() {
 
   function resetBoard(): void {
     const newBoard = generateBoard(8)
-    saveGameStateToCookie(newBoard, 0)
+    saveGameState(newBoard, 0, 0)
     setPoints(0)
     setBoard(newBoard)
   }
@@ -217,6 +235,9 @@ export default function Game() {
     animate(sequence2)
   }
   const myDiv = useRef<HTMLDivElement>(null)
+  if (loading) {
+    return <div />
+  }
 
   return (
     <div

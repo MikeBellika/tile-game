@@ -1,11 +1,17 @@
 import { useMemo } from "react"
-import { setCookie, getCookie } from "../utils/cookies"
 
 export type Tile =
   | { id: number; value: number; removed: false }
   | { id: number; value: number; removed: true; mergedTo: Position }
 export type Board = Tile[][]
 export type Position = { x: number; y: number }
+
+export type GameState = {
+  board: Board
+  points: number
+  size: number
+  moves: number
+}
 
 function getRandomTileId(): number {
   return Math.random()
@@ -423,18 +429,11 @@ export function getContrastTextColor(hexColor: string): string {
   return luminance > 0.5 ? "#101050" : "#fafafa"
 }
 
-export function checkAndSaveHighscore(points: number) {
-  const highscore = getHighScore()
-  if (highscore < points) {
-    setCookie("highscore", points, 1000)
-  }
-}
-
-export function getHighScore(): number {
-  return parseInt(getCookie("highscore") ?? "0")
-}
-
-export function getGameStateAsString(board: Board, points: number) {
+export function getGameStateAsString(
+  board: Board,
+  points: number,
+  moves: number,
+) {
   // Convert board positions to numbers for easier serialization
   const boardNumbers = board.flat().map((tile) => tile.value) // Assuming tile.value is a number
 
@@ -443,26 +442,18 @@ export function getGameStateAsString(board: Board, points: number) {
     boardNumbers,
     points,
     size: board.length, // Assuming a square board
+    moves,
   }
 
   // Serialize game state object to JSON and store in a cookie
   return encodeURIComponent(JSON.stringify(gameState))
 }
 
-// Function to save the game state to a cookie
-export function saveGameStateToCookie(board: Board, points: number) {
-  const gameStateString = getGameStateAsString(board, points)
-  setCookie("gameState", gameStateString, 1000)
-}
-
-export function getStateFromString(s: string): {
-  board: Board
-  points: number
-  size: number
-} {
+export function getStateFromString(s: string): GameState {
   const gameState = JSON.parse(decodeURIComponent(s))
   const size = gameState.size
   const boardNumbers = gameState.boardNumbers
+  const moves = gameState.moves ?? 0
 
   const board: Board = Array.from({ length: size }, (_, y) =>
     Array.from({ length: size }, (_, x) => {
@@ -478,25 +469,10 @@ export function getStateFromString(s: string): {
     board,
     points: gameState.points,
     size,
+    moves,
   }
 }
 
-// Function to retrieve the game state from a cookie
-export function getSavedGameState():
-  | {
-      board: Board
-      points: number
-      size: number
-    }
-  | undefined {
-  const gameStateCookie = getCookie("gameState")
-
-  if (!gameStateCookie) {
-    return undefined
-  }
-
-  return getStateFromString(gameStateCookie)
-}
 export function useBoard(size: number) {
   const board: Board = useMemo(() => generateBoard(size), [size])
 

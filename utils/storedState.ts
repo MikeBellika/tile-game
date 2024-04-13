@@ -1,49 +1,88 @@
 import { Preferences } from "@capacitor/preferences"
 import { Capacitor } from "@capacitor/core"
-import { getCookie, setCookie } from "./cookies"
+import { getCookie, removeCookie } from "./cookies"
 import { CapacitorGameConnect } from "@openforge/capacitor-game-connect"
+import {
+  Board,
+  GameState,
+  getGameStateAsString,
+  getStateFromString,
+} from "@/hooks/useBoard"
+
+export async function saveToPersistedState({
+  key,
+  value,
+}: {
+  key: string
+  value: string
+}) {
+  await Preferences.set({
+    key,
+    value,
+  })
+}
+
+export async function getFromPersistedState({
+  key,
+}: {
+  key: string
+}): Promise<string | undefined> {
+  const cookieValue = getCookie(key)
+  if (cookieValue) {
+    // Migrating away from cookies. If there's a value, we'll move it to preferences (localStorage on web) and remove it from cookies.
+    // Next time the value is requested, it will only exist in preferences.
+    await saveToPersistedState({
+      key,
+      value: cookieValue,
+    })
+    removeCookie(key)
+    return cookieValue
+  }
+  return (await Preferences.get({ key })).value ?? undefined
+}
 
 export async function setHighscore(highscore: number) {
-  if (Capacitor.isNativePlatform()) {
-    await Preferences.set({
-      key: "highscore",
-      value: highscore.toString(),
+  await saveToPersistedState({
+    key: "highscore",
+    value: highscore.toString(),
+  })
+  if (Capacitor.getPlatform() == "ios") {
+    await CapacitorGameConnect.submitScore({
+      leaderboardID: "exponentile",
+      totalScoreAmount: highscore,
     })
-    if (Capacitor.getPlatform() == "ios") {
-      await CapacitorGameConnect.submitScore({
-        leaderboardID: "exponentile",
-        totalScoreAmount: highscore,
-      })
-    }
-  } else {
-    setCookie("highscore", highscore, 1000)
   }
 }
 
 export async function getHighscore(): Promise<number> {
-  if (Capacitor.isNativePlatform()) {
-    const highscoreString = await Preferences.get({ key: "highscore" })
-    return parseInt(highscoreString.value ?? "0")
-  } else {
-    return parseInt(getCookie("highscore") ?? "0")
-  }
+  const highscoreString = await getFromPersistedState({ key: "highscore" })
+  return parseInt(highscoreString ?? "0")
 }
 
 export async function isTutorialDone() {
-  if (Capacitor.isNativePlatform()) {
-    return Boolean((await Preferences.get({ key: "doneTutorial" })).value)
-  } else {
-    return getCookie("doneTutorial") != undefined
-  }
+  return Boolean(await getFromPersistedState({ key: "doneTutorial" }))
 }
 
 export async function finishedTutorial() {
-  if (Capacitor.isNativePlatform()) {
-    await Preferences.set({
-      key: "doneTutorial",
-      value: "true",
-    })
-  } else {
-    setCookie("doneTutorial", 1, 1000)
+  await saveToPersistedState({
+    key: "doneTutorial",
+    value: "true",
+  })
+}
+
+export async function saveGameState(
+  board: Board,
+  points: number,
+  moves: number,
+) {
+  const gameStateString = getGameStateAsString(board, points, moves)
+  await saveToPersistedState({ key: "gameState", value: gameStateString })
+}
+
+export async function getGameState(): Promise<GameState | undefined> {
+  const gameStateString = await getFromPersistedState({ key: "gameState" })
+  if (!gameStateString) {
+    return undefined
   }
+  return getStateFromString(gameStateString)
 }
