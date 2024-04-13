@@ -19,7 +19,7 @@ import {
 } from "framer-motion"
 import { CapacitorGameConnect } from "@openforge/capacitor-game-connect"
 import { Capacitor } from "@capacitor/core"
-import { useEffect, useRef useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import Tile from "./Tile"
 import Tutorial from "./Tutorial"
 import Settings from "./Settings"
@@ -369,7 +369,7 @@ export default function Game() {
           </div>
         </div>
       </motion.div>
-      <div className="flex items-center justify-end gap-6 px-4">
+      <div className="flex w-full items-center justify-end gap-6 px-4">
         {player && (
           <>
             <button
