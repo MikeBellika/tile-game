@@ -8,6 +8,7 @@ import {
   getGameStateAsString,
   getStateFromString,
 } from "@/hooks/useBoard"
+import seedrandom from "seedrandom"
 
 export async function saveToPersistedState({
   key,
@@ -74,8 +75,9 @@ export async function saveGameState(
   board: Board,
   points: number,
   moves: number,
+  rngState: seedrandom.State.Arc4,
 ) {
-  const gameStateString = getGameStateAsString(board, points, moves)
+  const gameStateString = getGameStateAsString(board, points, moves, rngState)
   await saveToPersistedState({ key: "gameState", value: gameStateString })
 }
 

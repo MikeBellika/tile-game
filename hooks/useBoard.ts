@@ -12,6 +12,7 @@ export type GameState = {
   points: number
   size: number
   moves: number
+  rngState: seedrandom.State.Arc4
 }
 
 function getRandomTileId(): number {
@@ -363,19 +364,19 @@ export function getGameStateAsString(
   board: Board,
   points: number,
   moves: number,
+  rngState: seedrandom.State.Arc4,
 ) {
   // Convert board positions to numbers for easier serialization
-  const boardNumbers = board.flat().map((tile) => tile.value) // Assuming tile.value is a number
+  const boardNumbers = board.flat().map((tile) => tile.value)
 
-  // Create an object to store the board, points, and size
   const gameState = {
     boardNumbers,
     points,
-    size: board.length, // Assuming a square board
+    size: board.length,
     moves,
+    rngState,
   }
 
-  // Serialize game state object to JSON and store in a cookie
   return encodeURIComponent(JSON.stringify(gameState))
 }
 
@@ -384,6 +385,7 @@ export function getStateFromString(s: string): GameState {
   const size = gameState.size
   const boardNumbers = gameState.boardNumbers
   const moves = gameState.moves ?? 0
+  const rngState = gameState.rngState
 
   const board: Board = Array.from({ length: size }, (_, y) =>
     Array.from({ length: size }, (_, x) => {
@@ -401,6 +403,7 @@ export function getStateFromString(s: string): GameState {
     points: gameState.points,
     size,
     moves,
+    rngState,
   }
 }
 
@@ -490,5 +493,6 @@ export function useBoard(size: number, userSeed?: string) {
     getPositionsThatAlmostMatch,
     isGameOver,
     getTileValue: getMatchedTile,
+    rng,
   }
 }

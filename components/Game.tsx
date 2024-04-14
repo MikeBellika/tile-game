@@ -39,7 +39,8 @@ export default function Game() {
     swapTile,
     getPositionsThatAlmostMatch,
     isGameOver,
-  } = useBoard(8)
+    rng,
+  } = useBoard(8, "1")
   const [board, setBoard] = useState<Board>(initialBoard)
   const [points, setPoints] = useState(0)
   const [moves, setMoves] = useState(0)
@@ -162,7 +163,7 @@ export default function Game() {
   }
 
   useEffect(() => {
-    saveGameState(board, points, moves)
+    saveGameState(board, points, moves, rng.state())
     async function checkHighscore() {
       if (isGameOver(board) && !animating) {
         if (player && animationSpeed == "instant") {
@@ -204,7 +205,7 @@ export default function Game() {
 
   function resetBoard(): void {
     const newBoard = generateBoard(8)
-    saveGameState(newBoard, 0, 0)
+    saveGameState(newBoard, 0, 0, rng.state()) // TODO: New state?
     setPoints(0)
     setMoves(0)
     setBoard(newBoard)
