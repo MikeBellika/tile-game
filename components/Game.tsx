@@ -206,6 +206,7 @@ export default function Game() {
     const newBoard = generateBoard(8)
     saveGameState(newBoard, 0, 0)
     setPoints(0)
+    setMoves(0)
     setBoard(newBoard)
   }
 
