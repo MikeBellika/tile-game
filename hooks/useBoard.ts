@@ -1,4 +1,5 @@
 import { useMemo } from "react"
+import seedrandom from "seedrandom"
 
 export type Tile =
   | { id: number; value: number; removed: false }
@@ -17,14 +18,15 @@ function getRandomTileId(): number {
   return Math.random()
 }
 
-function getRandomTileValue(): number {
-  return Math.floor(Math.random() * 4) + 1
+function getRandomTileValue(rng: seedrandom.PRNG): number {
+  const value = rng ? rng() : Math.random()
+  return Math.floor(value * 4) + 1
 }
 
-export function getRandomTile(): Tile {
+export function getRandomTile(rng: seedrandom.PRNG): Tile {
   return {
     id: getRandomTileId(),
-    value: getRandomTileValue(),
+    value: getRandomTileValue(rng),
     removed: false,
   }
 }
@@ -40,26 +42,6 @@ export function numberToPosition(number: number, board: Board) {
   const x = number % board.length
   const y = Math.floor(number / board.length)
   return { x, y }
-}
-
-export function generateBoard(size: number): Board {
-  const initialBoard = Array.from({ length: size }).map((_) =>
-    Array.from({ length: size }).map((__) => {
-      return getRandomTile()
-    }),
-  )
-  let matchesOnBoard = getMatchesOnBoard(initialBoard)
-  while (matchesOnBoard.length > 0) {
-    for (const match of matchesOnBoard) {
-      const { x, y } = match.origin
-      initialBoard[x][y] = {
-        ...initialBoard[x][y],
-        value: getRandomTileValue(),
-      }
-    }
-    matchesOnBoard = getMatchesOnBoard(initialBoard)
-  }
-  return initialBoard
 }
 
 export function copyBoard(board: Board): Board {
@@ -173,62 +155,10 @@ function getMatchedTile(
 
 export type BoardPoints = { board: Board; points: number }
 
-/**
- * The main thing. Returns a list of boards to be animated through
- */
-function swapTile(from: Position, to: Position, board: Board): BoardPoints[] {
-  const swappedBoard = copyBoard(board)
-  swappedBoard[to.x][to.y] = board[from.x][from.y]
-  swappedBoard[from.x][from.y] = board[to.x][to.y]
-  if (!isMoveValid(from, to, swappedBoard)) {
-    // Animate to the swapped board, then back again
-    return [
-      { board: swappedBoard, points: 0 },
-      { board, points: 0 },
-    ]
-  }
-  const newBoard = copyBoard(swappedBoard)
-  const fromMatchedTile = getMatchedTile(from, newBoard)
-  const toMatchedTile = getMatchedTile(to, newBoard)
-  const matchedTiles = []
-
-  if (fromMatchedTile.match) {
-    newBoard[from.x][from.y] = {
-      ...newBoard[from.x][from.y],
-      value: fromMatchedTile.newValue,
-    }
-    matchedTiles.push(fromMatchedTile)
-  }
-  if (toMatchedTile.match) {
-    newBoard[to.x][to.y] = {
-      ...newBoard[to.x][to.y],
-      value: toMatchedTile.newValue,
-    }
-    matchedTiles.push(toMatchedTile)
-  }
-
-  const boardAfterGravity = moveTilesDown(matchedTiles, newBoard)
-  const boardAfterCombos = findAndDoCombos(boardAfterGravity[1])
-
-  return [
-    { board: swappedBoard, points: 0 },
-    {
-      board: newBoard,
-      points: matchedTiles.reduce(
-        (acc, matchedTile) => Math.pow(2, matchedTile.newValue) + acc,
-        0,
-      ),
-    },
-    ...boardAfterGravity.map((b) => {
-      return { board: b, points: 0 }
-    }),
-    ...boardAfterCombos,
-  ]
-}
-
 export function moveTilesDown(
   matchedTiles: MatchedTile[],
   board: Board,
+  rng: seedrandom.PRNG,
 ): [Board, Board] {
   const boardWithRemovedTiles = copyBoard(board)
   for (const positionPairToRemove of matchedTiles) {
@@ -258,14 +188,14 @@ export function moveTilesDown(
     }
     // Fill in from top
     for (let y = 0; y < emptyTilesBelow; y++) {
-      newBoard[x][y] = getRandomTile()
+      newBoard[x][y] = getRandomTile(rng)
     }
   }
 
   return [boardWithRemovedTiles, newBoard]
 }
 
-function findAndDoCombos(board: Board): BoardPoints[] {
+function findAndDoCombos(board: Board, rng: seedrandom.PRNG): BoardPoints[] {
   let result: BoardPoints[] = []
   let matches = uniqueNewMatches(board)
 
@@ -279,7 +209,7 @@ function findAndDoCombos(board: Board): BoardPoints[] {
         value: match.newValue,
       }
     }
-    const resultAfterGravity = moveTilesDown(matches, newBoard)
+    const resultAfterGravity = moveTilesDown(matches, newBoard, rng)
     result = [
       ...result,
       {
@@ -459,8 +389,9 @@ export function getStateFromString(s: string): GameState {
     Array.from({ length: size }, (_, x) => {
       const index = y * size + x
       return {
-        ...getRandomTile(),
+        id: getRandomTileId(),
         value: boardNumbers[index],
+        removed: false,
       }
     }),
   )
@@ -473,13 +404,88 @@ export function getStateFromString(s: string): GameState {
   }
 }
 
-export function useBoard(size: number) {
+export function useBoard(size: number, userSeed?: string) {
+  const seed = userSeed ?? window.btoa(Math.random().toString())
+  const rng = seedrandom(seed, { state: true })
   const board: Board = useMemo(() => generateBoard(size), [size])
 
+  /**
+   * The main thing. Returns a list of boards to be animated through
+   */
+  function swapTile(from: Position, to: Position, board: Board): BoardPoints[] {
+    const swappedBoard = copyBoard(board)
+    swappedBoard[to.x][to.y] = board[from.x][from.y]
+    swappedBoard[from.x][from.y] = board[to.x][to.y]
+    if (!isMoveValid(from, to, swappedBoard)) {
+      // Animate to the swapped board, then back again
+      return [
+        { board: swappedBoard, points: 0 },
+        { board, points: 0 },
+      ]
+    }
+    const newBoard = copyBoard(swappedBoard)
+    const fromMatchedTile = getMatchedTile(from, newBoard)
+    const toMatchedTile = getMatchedTile(to, newBoard)
+    const matchedTiles = []
+
+    if (fromMatchedTile.match) {
+      newBoard[from.x][from.y] = {
+        ...newBoard[from.x][from.y],
+        value: fromMatchedTile.newValue,
+      }
+      matchedTiles.push(fromMatchedTile)
+    }
+    if (toMatchedTile.match) {
+      newBoard[to.x][to.y] = {
+        ...newBoard[to.x][to.y],
+        value: toMatchedTile.newValue,
+      }
+      matchedTiles.push(toMatchedTile)
+    }
+
+    const boardAfterGravity = moveTilesDown(matchedTiles, newBoard, rng)
+    const boardAfterCombos = findAndDoCombos(boardAfterGravity[1], rng)
+
+    return [
+      { board: swappedBoard, points: 0 },
+      {
+        board: newBoard,
+        points: matchedTiles.reduce(
+          (acc, matchedTile) => Math.pow(2, matchedTile.newValue) + acc,
+          0,
+        ),
+      },
+      ...boardAfterGravity.map((b) => {
+        return { board: b, points: 0 }
+      }),
+      ...boardAfterCombos,
+    ]
+  }
+
+  function generateBoard(size: number): Board {
+    const initialBoard = Array.from({ length: size }).map((_) =>
+      Array.from({ length: size }).map((__) => {
+        return getRandomTile(rng)
+      }),
+    )
+    let matchesOnBoard = getMatchesOnBoard(initialBoard)
+    while (matchesOnBoard.length > 0) {
+      for (const match of matchesOnBoard) {
+        const { x, y } = match.origin
+        initialBoard[x][y] = {
+          ...initialBoard[x][y],
+          value: getRandomTileValue(rng),
+        }
+      }
+      matchesOnBoard = getMatchesOnBoard(initialBoard)
+    }
+    return initialBoard
+  }
   return {
     board,
     swapTile,
     getTileColor,
+    generateBoard,
     isAdjacent,
     getPositionsThatAlmostMatch,
     isGameOver,

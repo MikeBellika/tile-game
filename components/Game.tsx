@@ -4,7 +4,6 @@ import {
   BoardPoints,
   Position,
   copyBoard,
-  generateBoard,
   useBoard,
 } from "@/hooks/useBoard"
 import {
@@ -35,6 +34,7 @@ import ShareButton from "./ShareButton"
 export default function Game() {
   const {
     board: initialBoard,
+    generateBoard,
     isAdjacent,
     swapTile,
     getPositionsThatAlmostMatch,
