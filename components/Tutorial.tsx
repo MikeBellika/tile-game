@@ -1,10 +1,19 @@
-import { getCookie, setCookie } from "@/utils/cookies"
 import { finishedTutorial, isTutorialDone } from "@/utils/storedState"
 import { AnimatePresence, motion } from "framer-motion"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 export default function Tutorial() {
-  const doneTutorial = isTutorialDone()
+  const [doneTutorial, setDoneTutorial] = useState(false)
+  useEffect(() => {
+    async function tutorialDone() {
+      const tutorialDone = await isTutorialDone()
+      setDoneTutorial(tutorialDone)
+      if (tutorialDone) {
+        setOpen(false)
+      }
+    }
+    tutorialDone()
+  }, [])
   const [step, setStep] = useState(0)
   const [open, setOpen] = useState(!doneTutorial)
   const variants = {
