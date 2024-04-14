@@ -287,6 +287,12 @@ export default function Game() {
                   <motion.h1 className="mb-6 text-5xl font-bold text-blue-100 [text-shadow:_3px_3px_0_#0a9396,_6px_6px_0_#ee9b00,_9px_9px_0_#005f73]">
                     Game Over
                   </motion.h1>
+                  <div className="mb-4 flex justify-between px-8 text-lg">
+                    <span>Moves</span>
+                    <span className="font-medium">
+                      {moves.toLocaleString()}
+                    </span>
+                  </div>
                   <ShareButton board={board} points={points} moves={moves} />
                   <Button
                     onClick={() => {
