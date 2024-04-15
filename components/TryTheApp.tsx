@@ -16,10 +16,10 @@ export default function TryTheApp() {
           Beta test the app
         </h2>
         <p className="mt-4">
-          I am developing an app for Android and iOS. If you are interested in
-          beta testing this app before its release, please email me at{" "}
+          I am developing an app for Android. If you are interested in beta
+          testing this app before its release, please email me at{" "}
           <a
-            href="mailto:exponentile@bellika.dk?subject=Beta testing app"
+            href="mailto:exponentile@bellika.dk?subject=Beta testing the app"
             className="font-medium underline"
           >
             exponentile@bellika.dk
