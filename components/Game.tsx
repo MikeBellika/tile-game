@@ -69,7 +69,7 @@ export default function Game() {
 
   const [debug, _] = useState(false)
 
-  const [gameOverClosed, closeGameOver] = useState(false)
+  const [gameOverClosed, setGameOverClosed] = useState(false)
 
   const [player, setPlayer] = useState<
     { player_name: string; player_id: string } | undefined
@@ -205,6 +205,7 @@ export default function Game() {
   function resetBoard(): void {
     const newBoard = generateBoard(8)
     saveGameState(newBoard, 0, 0)
+    setGameOverClosed(false)
     setPoints(0)
     setMoves(0)
     setBoard(newBoard)
@@ -266,7 +267,7 @@ export default function Game() {
                 <div className="flex flex-col rounded bg-white/80 px-6 pb-6 pt-2 dark:bg-black/80">
                   <button
                     className="self-end"
-                    onClick={() => closeGameOver(true)}
+                    onClick={() => setGameOverClosed(true)}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
