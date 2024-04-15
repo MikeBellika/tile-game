@@ -31,6 +31,7 @@ import {
 import { boardContains2048Tile } from "@/utils/achievements"
 import Button from "./Button"
 import ShareButton from "./ShareButton"
+import TryTheApp from "./TryTheApp"
 
 export default function Game() {
   const {
@@ -449,6 +450,7 @@ export default function Game() {
             </button>
           </>
         )}
+        <TryTheApp />
         <Settings
           setAnimationSpeed={setAnimationSpeed}
           animationSpeed={animationSpeed}
