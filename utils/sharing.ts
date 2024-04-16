@@ -11,39 +11,6 @@ export function encodeStateInURL(board: Board, points: number): string {
   return `b=${sharingString}&p=${points}&s=${board.length}`
 }
 
-export function decodeStateFromURL(
-  urlString: string,
-): { board: Board; points: number } | undefined {
-  const params = new URLSearchParams(urlString)
-  const boardString = params.get("b")
-  const pointsString = params.get("p")
-  const sizeString = params.get("s")
-
-  if (boardString === null || pointsString === null || sizeString === null) {
-    return undefined
-  }
-
-  const points = parseInt(pointsString)
-  const size = parseInt(sizeString)
-  const boardNumbers = urlSafeStringToNumbers(boardString)
-
-  if (isNaN(points) || isNaN(size) || boardNumbers.some(isNaN)) {
-    return undefined
-  }
-
-  const board: Board = Array.from({ length: size }, (_, y) =>
-    Array.from({ length: size }, (_, x) => {
-      const index = y * size + x
-      return {
-        ...getRandomTile(),
-        value: boardNumbers[index],
-      }
-    }),
-  )
-
-  return { board, points }
-}
-
 function numbersToUrlSafeString(numbers: number[]): string {
   // Assuming numbers are 1-16, decrement to make them 0-15 for bitwise operations
   const adjustedNumbers = numbers.map((n) => n - 1)
