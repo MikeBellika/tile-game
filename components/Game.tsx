@@ -32,6 +32,9 @@ import Button from "./Button"
 import ShareButton from "./ShareButton"
 
 export default function Game() {
+  const sharedState = new URLSearchParams(window.location.search)
+  const seed = sharedState.get("s") ?? undefined
+
   const {
     board: initialBoard,
     generateBoard,
@@ -40,7 +43,7 @@ export default function Game() {
     getPositionsThatAlmostMatch,
     isGameOver,
     rng,
-  } = useBoard(8, "1")
+  } = useBoard(8, seed)
   const [board, setBoard] = useState<Board>(initialBoard)
   const [points, setPoints] = useState(0)
   const [moves, setMoves] = useState(0)
@@ -49,7 +52,7 @@ export default function Game() {
   useEffect(() => {
     async function initSavedState() {
       const gameState = await getGameState()
-      if (!gameState || gameState.points == 0) {
+      if (!gameState) {
         setLoading(false)
         return
       }
@@ -163,22 +166,24 @@ export default function Game() {
   }
 
   useEffect(() => {
-    saveGameState(board, points, moves, rng.state())
-    async function checkHighscore() {
-      if (isGameOver(board) && !animating) {
-        if (player && animationSpeed == "instant") {
-          await CapacitorGameConnect.unlockAchievement({
-            achievementID: "speedDemon",
-          })
-        }
-        const highscore = await getHighscore()
-        if (highscore < points) {
-          setHighscore(points)
-          initialiseHighscore(points)
+    if (moves > 0) {
+      saveGameState(board, points, moves, rng.state())
+      async function checkHighscore() {
+        if (isGameOver(board) && !animating) {
+          if (player && animationSpeed == "instant") {
+            await CapacitorGameConnect.unlockAchievement({
+              achievementID: "speedDemon",
+            })
+          }
+          const highscore = await getHighscore()
+          if (highscore < points) {
+            setHighscore(points)
+            initialiseHighscore(points)
+          }
         }
       }
+      checkHighscore()
     }
-    checkHighscore()
   }, [board, points])
 
   function getExitTo({ x, y }: Position): Position | undefined {
