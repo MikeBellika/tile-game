@@ -494,5 +494,6 @@ export function useBoard(size: number, userSeed?: string) {
     isGameOver,
     getTileValue: getMatchedTile,
     rng,
+    seed,
   }
 }

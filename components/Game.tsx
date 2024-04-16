@@ -30,6 +30,7 @@ import {
 import { boardContains2048Tile } from "@/utils/achievements"
 import Button from "./Button"
 import ShareButton from "./ShareButton"
+import { useToast } from "./ui/use-toast"
 
 export default function Game() {
   const sharedState = new URLSearchParams(window.location.search)
@@ -43,11 +44,13 @@ export default function Game() {
     getPositionsThatAlmostMatch,
     isGameOver,
     rng,
+    seed: generatedSeed, //TODO: Find a better name
   } = useBoard(8, seed)
   const [board, setBoard] = useState<Board>(initialBoard)
   const [points, setPoints] = useState(0)
   const [moves, setMoves] = useState(0)
   const [loading, setLoading] = useState(true)
+  const { toast } = useToast()
 
   useEffect(() => {
     async function initSavedState() {
@@ -307,6 +310,19 @@ export default function Game() {
                     className="mt-2 flex justify-center gap-3"
                   >
                     New game
+                  </Button>
+                  <Button
+                    onClick={async () => {
+                      await navigator.clipboard.writeText(
+                        `${window.location.href.split("?")[0]}?s=${generatedSeed}`,
+                      )
+                      toast({
+                        description: "Copied challenge link to clipboard!",
+                      })
+                    }}
+                    className="mt-2 flex justify-center gap-3"
+                  >
+                    Challenge a friend
                   </Button>
                 </div>
               </motion.div>
