@@ -143,6 +143,7 @@ export function drawBoardToPNG(
         )
       })
     })
+    ctx.fillStyle = "white"
     ctx.font = `bold 64px ${fontName}`
     ctx.shadowColor = "black"
     ctx.shadowBlur = 2
@@ -153,7 +154,6 @@ export function drawBoardToPNG(
     )
     ctx.font = `bold ${footerFontSize}px ${fontName}`
 
-    ctx.fillStyle = "white"
     ctx.textAlign = "left"
     ctx.textBaseline = "middle"
     ctx.fillText(
