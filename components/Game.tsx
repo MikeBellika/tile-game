@@ -33,6 +33,7 @@ import Button from "./Button"
 import ShareButton from "./ShareButton"
 import TryTheApp from "./TryTheApp"
 import { useAudioPlayer } from "@/hooks/useAudioPlayer"
+import { Volume2, VolumeX } from "lucide-react"
 
 export default function Game() {
   const {
@@ -52,6 +53,7 @@ export default function Game() {
     "/sounds/blop2.mp3",
     "/sounds/blop3.mp3",
   ])
+  const [muted, setMuted] = useState(true)
 
   useEffect(() => {
     async function initSavedState() {
@@ -137,7 +139,7 @@ export default function Game() {
     let soundsPlayed = 0
     for (const [index, newBoard] of boards.entries()) {
       setBoard(newBoard.board)
-      if (newBoard.points > 0) {
+      if (newBoard.points > 0 && !muted) {
         play(Math.min(Math.pow(2, 0.4 * soundsPlayed), 2.5))
         soundsPlayed++
       }
@@ -463,6 +465,15 @@ export default function Game() {
           </>
         )}
         <TryTheApp />
+        {!muted ? (
+          <button onClick={() => setMuted(!muted)}>
+            <Volume2 />
+          </button>
+        ) : (
+          <button onClick={() => setMuted(!muted)}>
+            <VolumeX />
+          </button>
+        )}
         <Settings
           setAnimationSpeed={setAnimationSpeed}
           animationSpeed={animationSpeed}
