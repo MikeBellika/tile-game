@@ -32,6 +32,7 @@ import { boardContains2048Tile } from "@/utils/achievements"
 import Button from "./Button"
 import ShareButton from "./ShareButton"
 import TryTheApp from "./TryTheApp"
+import { useAudioPlayer } from "@/hooks/useAudioPlayer"
 
 export default function Game() {
   const {
@@ -45,6 +46,12 @@ export default function Game() {
   const [points, setPoints] = useState(0)
   const [moves, setMoves] = useState(0)
   const [loading, setLoading] = useState(true)
+
+  const { play } = useAudioPlayer([
+    "/sounds/blop1.mp3",
+    "/sounds/blop2.mp3",
+    "/sounds/blop3.mp3",
+  ])
 
   useEffect(() => {
     async function initSavedState() {
@@ -127,8 +134,13 @@ export default function Game() {
     setAnimating(true)
     const newBoardsHistory = [...boardsHistory, ...boards]
     setBoardsHistory(newBoardsHistory)
+    let soundsPlayed = 0
     for (const [index, newBoard] of boards.entries()) {
       setBoard(newBoard.board)
+      if (newBoard.points > 0) {
+        play(Math.min(Math.pow(2, 0.4 * soundsPlayed), 2.5))
+        soundsPlayed++
+      }
       setPoints((currentPoints) => currentPoints + newBoard.points)
       if (index < boards.length - 1) {
         await new Promise((r) => setTimeout(r, animationDuration * 1000 + 100))
