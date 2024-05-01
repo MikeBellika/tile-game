@@ -29,7 +29,6 @@ export default function Settings({
   useEffect(() => {
     const lastFive = settingsPressed.slice(-5)
     const sequence = ["bottom", "top", "slow", "fast", "instant"]
-    console.log({ lastFive })
     if (
       lastFive.length === sequence.length &&
       lastFive.every((value, index) => value === sequence[index])
