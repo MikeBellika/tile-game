@@ -38,7 +38,7 @@ export default function Tile({
       style={{ background: color, color: getContrastTextColor(color) }}
       className={`flex h-full w-full select-none items-center justify-center rounded font-bold text-black transition-colors duration-700 ${
         selected ? "ring ring-yellow-400" : ""
-      } ${tile.value > 10 ? "text-base shadow-[0px_0px_20px_10px_#ed8936] md:text-xl" : "text-xl md:text-2xl"}`}
+      } ${tile.value > 9 ? "text-sm md:text-xl" : "text-xl md:text-2xl"} ${tile.value > 10 && "text-base shadow-[0px_0px_20px_10px_#ed8936] md:text-xl"}`}
       ref={scope}
     >
       {Math.pow(2, tile.value)}
