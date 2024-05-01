@@ -5,22 +5,41 @@ import {
   GamePositions,
   GamePosition,
 } from "@/hooks/useSettings"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Button from "./Button"
 import { AnimatePresence, motion } from "framer-motion"
+import { saveToPersistedState } from "@/utils/storedState"
+import { useToast } from "./ui/use-toast"
 
 export default function Settings({
   animationSpeed,
   setAnimationSpeed,
   gamePosition,
   setGamePosition,
+  setDebug,
 }: {
   animationSpeed: AnimationSpeed
   setAnimationSpeed: Function
   gamePosition: GamePosition
   setGamePosition: Function
+  setDebug: Function
 }) {
   const [open, setOpen] = useState(false)
+  const [settingsPressed, setSettingsPressed] = useState<string[]>([])
+  const { toast } = useToast()
+  useEffect(() => {
+    const lastFive = settingsPressed.slice(-5)
+    const sequence = ["bottom", "top", "slow", "fast", "instant"]
+    console.log({ lastFive })
+    if (
+      lastFive.length === sequence.length &&
+      lastFive.every((value, index) => value === sequence[index])
+    ) {
+      setDebug(true)
+      toast({ description: "Debug mode enabled" })
+      saveToPersistedState({ key: "debug", value: "true" })
+    }
+  }, [settingsPressed])
   return (
     <>
       <AnimatePresence>
@@ -61,9 +80,10 @@ export default function Settings({
                       className="peer hidden"
                       checked={speed == animationSpeed}
                       value={speed}
-                      onChange={() =>
+                      onChange={() => {
                         setAnimationSpeed(speed as AnimationSpeed)
-                      }
+                        setSettingsPressed([...settingsPressed, speed])
+                      }}
                     />
 
                     <label
@@ -88,9 +108,10 @@ export default function Settings({
                       className="peer hidden"
                       checked={_gamePosition == gamePosition}
                       value={_gamePosition}
-                      onChange={() =>
+                      onChange={() => {
                         setGamePosition(_gamePosition as GamePosition)
-                      }
+                        setSettingsPressed([...settingsPressed, _gamePosition])
+                      }}
                     />
 
                     <label

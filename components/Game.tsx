@@ -68,7 +68,7 @@ export default function Game() {
     { board, points: 0 },
   ])
 
-  const [debug, _] = useState(false)
+  const [debug, setDebug] = useState(false)
 
   const [gameOverClosed, setGameOverClosed] = useState(false)
 
@@ -134,13 +134,14 @@ export default function Game() {
         await new Promise((r) => setTimeout(r, animationDuration * 1000 + 100))
       }
     }
-    if (player && boardContains2048Tile(board)) {
+    if (player && boardContains2048Tile(board) && !debug) {
       await CapacitorGameConnect.unlockAchievement({
         achievementID: "get2048Tile",
       })
     }
 
     setAnimating(false)
+    return boards[boards.length - 1]
   }
 
   async function clickTile(position: Position) {
@@ -211,10 +212,27 @@ export default function Game() {
     setMoves(0)
     setBoard(newBoard)
   }
+  const [autoplay, setAutoplay] = useState(false)
+
+  useEffect(() => {
+    async function autoPlay() {
+      let hintPositions = getPositionsThatAlmostMatch(board)
+      if (!hintPositions) {
+        return
+      }
+      await new Promise((r) => setTimeout(r, 100))
+      await swapTiles(hintPositions[0], hintPositions[1])
+    }
+
+    if (autoplay && !animating) {
+      autoPlay()
+    }
+  }, [autoplay, board])
 
   function getHint(): void {
     const hintPositions = getPositionsThatAlmostMatch(board)
     if (!hintPositions) {
+      setGameOverClosed(false)
       return
     }
     const { x: x1, y: y1 } = hintPositions[0]
@@ -332,8 +350,6 @@ export default function Game() {
                   className={`aspect-square w-full sm:size-12 md:size-14 ${
                     getExitTo({ x, y }) ? "z-0" : "z-10"
                   }`}
-                  // drag
-                  // dragConstraints={{ top: 5, left: 5, right: 5, bottom: 5 }}
                   key={board[x][y].id}
                   onClick={(_) => clickTile({ x, y })}
                 >
@@ -397,6 +413,11 @@ export default function Game() {
               Reset
             </button>
           </div>
+          {debug && (
+            <div>
+              <Button onClick={() => setAutoplay(true)}>Autoplay</Button>
+            </div>
+          )}
         </div>
       </motion.div>
       <div className="flex w-full items-center justify-end gap-6 px-4">
@@ -456,6 +477,7 @@ export default function Game() {
           animationSpeed={animationSpeed}
           gamePosition={gamePosition}
           setGamePosition={setGamePosition}
+          setDebug={setDebug}
         />
       </div>
     </div>
