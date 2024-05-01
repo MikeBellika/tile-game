@@ -141,7 +141,6 @@ export default function Game() {
     }
 
     setAnimating(false)
-    return boards[boards.length - 1]
   }
 
   async function clickTile(position: Position) {
