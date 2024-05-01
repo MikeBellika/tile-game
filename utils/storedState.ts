@@ -1,7 +1,5 @@
 import { Preferences } from "@capacitor/preferences"
-import { Capacitor } from "@capacitor/core"
 import { getCookie, removeCookie } from "./cookies"
-import { CapacitorGameConnect } from "@openforge/capacitor-game-connect"
 import {
   Board,
   GameState,
@@ -46,12 +44,6 @@ export async function setHighscore(highscore: number) {
     key: "highscore",
     value: highscore.toString(),
   })
-  if (Capacitor.getPlatform() == "ios") {
-    await CapacitorGameConnect.submitScore({
-      leaderboardID: "exponentile",
-      totalScoreAmount: highscore,
-    })
-  }
 }
 
 export async function getHighscore(): Promise<number> {

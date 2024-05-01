@@ -165,16 +165,24 @@ export default function Game() {
   useEffect(() => {
     saveGameState(board, points, moves)
     async function checkHighscore() {
-      if (isGameOver(board) && !animating) {
+      if (!animating) {
+        const highscore = await getHighscore()
+        if (highscore < points) {
+          await setHighscore(points)
+          initialiseHighscore(points)
+        }
+      }
+      if (isGameOver(board)) {
         if (player && animationSpeed == "instant") {
           await CapacitorGameConnect.unlockAchievement({
             achievementID: "speedDemon",
           })
         }
-        const highscore = await getHighscore()
-        if (highscore < points) {
-          setHighscore(points)
-          initialiseHighscore(points)
+        if (highscore < points && Capacitor.getPlatform() == "ios") {
+          await CapacitorGameConnect.submitScore({
+            leaderboardID: "exponentile",
+            totalScoreAmount: highscore,
+          })
         }
       }
     }
