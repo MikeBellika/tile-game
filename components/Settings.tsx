@@ -8,7 +8,6 @@ import {
 import { useEffect, useState } from "react"
 import Button from "./Button"
 import { AnimatePresence, motion } from "framer-motion"
-import { saveToPersistedState } from "@/utils/storedState"
 import { useToast } from "./ui/use-toast"
 
 export default function Settings({
@@ -37,7 +36,6 @@ export default function Settings({
     ) {
       setDebug(true)
       toast({ description: "Debug mode enabled" })
-      saveToPersistedState({ key: "debug", value: "true" })
     }
   }, [settingsPressed])
   return (
