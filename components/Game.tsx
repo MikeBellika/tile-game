@@ -415,7 +415,9 @@ export default function Game() {
           </div>
           {debug && (
             <div>
-              <Button onClick={() => setAutoplay(true)}>Autoplay</Button>
+              <Button onClick={() => setAutoplay(!autoplay)}>
+                Autoplay {autoplay ? "on" : "off"}
+              </Button>
             </div>
           )}
         </div>
