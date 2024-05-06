@@ -1,0 +1,10 @@
+[
+	{
+		"pkg": "@capacitor/preferences",
+		"classpath": "com.capacitorjs.plugins.preferences.PreferencesPlugin"
+	},
+	{
+		"pkg": "@openforge/capacitor-game-connect",
+		"classpath": "com.openforge.capacitorgameconnect.CapacitorGameConnectPlugin"
+	}
+]

@@ -1,0 +1,8 @@
+{
+	"appId": "dk.bellika.exponentile",
+	"appName": "ExponenTile",
+	"webDir": "out",
+	"server": {
+		"androidScheme": "https"
+	}
+}

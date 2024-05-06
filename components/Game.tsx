@@ -26,6 +26,7 @@ import {
   getGameState,
   getHighscore,
   saveGameState,
+  saveToPersistedState,
   setHighscore,
 } from "@/utils/storedState"
 import { boardContains2048Tile } from "@/utils/achievements"
@@ -134,10 +135,12 @@ export default function Game() {
         await new Promise((r) => setTimeout(r, animationDuration * 1000 + 100))
       }
     }
-    if (player && boardContains2048Tile(board) && !debug) {
-      await CapacitorGameConnect.unlockAchievement({
-        achievementID: "get2048Tile",
-      })
+    if (boardContains2048Tile(board)) {
+      // There's a bug with this achievement that causes the leaderboards/achievements to crash.
+      // For now we'll just save it. We can award the user when the bug is fixed.
+      // This guy seems to have the same problem: https://stackoverflow.com/questions/77574849/gamekit-not-showing-with-swiftui
+      // (We don't await this, cause we don't want the animations delayed)
+      saveToPersistedState({ key: "2048achievement", value: "true" })
     }
 
     setAnimating(false)
