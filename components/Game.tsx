@@ -188,6 +188,26 @@ export default function Game() {
     }
     checkHighscore()
   }, [board, points])
+  useEffect(() => {
+    // Sync score with leaderboards, in case they got a highscore while offline.
+    // also sometimes submitting scores just don't work
+    async function checkIfLeaderboardsScoreCorrect() {
+      const highscore = await getHighscore()
+      const highscoreFromLeaderboards =
+        await CapacitorGameConnect.getUserTotalScore({
+          leaderboardID: "exponentile",
+        })
+      if (highscoreFromLeaderboards.player_score < highscore) {
+        await CapacitorGameConnect.submitScore({
+          leaderboardID: "exponentile",
+          totalScoreAmount: highscore,
+        })
+      }
+    }
+    if (player) {
+      checkIfLeaderboardsScoreCorrect()
+    }
+  }, [player])
 
   function getExitTo({ x, y }: Position): Position | undefined {
     const tile = board[x][y]
