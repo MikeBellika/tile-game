@@ -168,7 +168,7 @@ export default function Game() {
   useEffect(() => {
     saveGameState(board, points, moves)
     async function checkHighscore() {
-      if (!animating) {
+      if (!animating && !debug) {
         const highscore = await getHighscore()
         if (highscore < points) {
           await setHighscore(points)
