@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">ExponenTile</string>
+    <string name="title_activity_main">ExponenTile</string>
+    <string name="package_name">dk.bellika.exponentile</string>
+    <string name="custom_url_scheme">dk.bellika.exponentile</string>
+</resources>

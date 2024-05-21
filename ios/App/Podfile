@@ -1,4 +1,4 @@
-require_relative '../../node_modules/.pnpm/@capacitor+ios@5.7.4_@capacitor+core@5.7.4/node_modules/@capacitor/ios/scripts/pods_helpers'
+require_relative '../../node_modules/.pnpm/@capacitor+ios@6.0.0_@capacitor+core@6.0.0/node_modules/@capacitor/ios/scripts/pods_helpers'
 
 platform :ios, '13.0'
 use_frameworks!
@@ -9,10 +9,10 @@ use_frameworks!
 install! 'cocoapods', :disable_input_output_paths => true
 
 def capacitor_pods
-  pod 'Capacitor', :path => '../../node_modules/.pnpm/@capacitor+ios@5.7.4_@capacitor+core@5.7.4/node_modules/@capacitor/ios'
-  pod 'CapacitorCordova', :path => '../../node_modules/.pnpm/@capacitor+ios@5.7.4_@capacitor+core@5.7.4/node_modules/@capacitor/ios'
-  pod 'CapacitorPreferences', :path => '../../node_modules/.pnpm/@capacitor+preferences@5.0.7_@capacitor+core@5.7.4/node_modules/@capacitor/preferences'
-  pod 'OpenforgeCapacitorGameConnect', :path => '../../node_modules/.pnpm/@openforge+capacitor-game-connect@5.0.2_@capacitor+core@5.7.4/node_modules/@openforge/capacitor-game-connect'
+  pod 'Capacitor', :path => '../../node_modules/.pnpm/@capacitor+ios@6.0.0_@capacitor+core@6.0.0/node_modules/@capacitor/ios'
+  pod 'CapacitorCordova', :path => '../../node_modules/.pnpm/@capacitor+ios@6.0.0_@capacitor+core@6.0.0/node_modules/@capacitor/ios'
+  pod 'CapacitorPreferences', :path => '../../node_modules/.pnpm/@capacitor+preferences@6.0.0_@capacitor+core@6.0.0/node_modules/@capacitor/preferences'
+  pod 'OpenforgeCapacitorGameConnect', :path => '../../node_modules/.pnpm/@openforge+capacitor-game-connect@5.0.2_@capacitor+core@6.0.0/node_modules/@openforge/capacitor-game-connect'
 end
 
 target 'App' do
