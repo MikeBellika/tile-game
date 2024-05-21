@@ -5,10 +5,10 @@ import { Capacitor } from "@capacitor/core"
 import Button from "./Button"
 
 export default function TryTheApp() {
+  const [open, setOpen] = useState(false)
   if (Capacitor.getPlatform() != "web") {
     return <></>
   }
-  const [open, setOpen] = useState(false)
   return (
     <>
       <Dialog open={open} setOpen={setOpen}>

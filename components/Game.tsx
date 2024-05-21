@@ -248,7 +248,7 @@ export default function Game() {
 
   useEffect(() => {
     async function autoPlay() {
-      let hintPositions = getPositionsThatAlmostMatch(board)
+      const hintPositions = getPositionsThatAlmostMatch(board)
       if (!hintPositions) {
         return
       }
