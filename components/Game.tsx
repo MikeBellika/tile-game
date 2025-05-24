@@ -165,6 +165,9 @@ export default function Game() {
   }
 
   useEffect(() => {
+    if (animating) {
+      return
+    }
     saveGameState(board, points, moves)
     async function checkHighscore() {
       if (!animating && !debug) {
@@ -189,7 +192,7 @@ export default function Game() {
       }
     }
     checkHighscore()
-  }, [board, points])
+  }, [board, points, animating])
   useEffect(() => {
     // Sync score with leaderboards, in case they got a highscore while offline.
     // also sometimes submitting scores just don't work
