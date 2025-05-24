@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "syncapp": "next build && npx cap sync",
+    "sync:android": "next build && npx cap sync android",
     "test": "vitest"
   },
   "dependencies": {
