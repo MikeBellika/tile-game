@@ -26,6 +26,7 @@ export default function Tile({
     }
     const sequence: AnimationSequence = [
       [scope.current, { scale: 1.3, border: "10px solid white" }],
+      [scope.current, { scale: 1, border: "none" }],
     ]
     animate(sequence)
   }, [tile.value])
@@ -35,9 +36,9 @@ export default function Tile({
       whileTap={{ scale: 0.98 }}
       transition={{ type: "spring", stiffness: 700, damping: 20 }}
       style={{ background: color, color: getContrastTextColor(color) }}
-      className={`flex h-full w-full scale-[2] select-none items-center justify-center rounded font-bold text-black transition-colors duration-700 ${
+      className={`flex h-full w-full select-none items-center justify-center rounded font-bold text-black transition-colors duration-700 ${
         selected ? "ring ring-yellow-400" : ""
-      } ${tile.value > 9 ? "text-sm md:text-xl" : "text-xl md:text-2xl"} ${tile.value != 6 && "!hidden "} ${tile.value > 10 && "text-base shadow-[0px_0px_20px_10px_#ed8936] md:text-xl"}`}
+      } ${tile.value > 9 ? "text-sm md:text-xl" : "text-xl md:text-2xl"} ${tile.value > 10 && "text-base shadow-[0px_0px_20px_10px_#ed8936] md:text-xl"}`}
       ref={scope}
     >
       {Math.pow(2, tile.value)}

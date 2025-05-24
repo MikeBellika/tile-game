@@ -395,38 +395,32 @@ export default function Game() {
           </AnimatePresence>
         </main>
         <div className="flex flex-col gap-6 p-2 sm:p-4">
-          <div className="flex flex-row justify-between ">
-            <div className="flex flex-col items-center">
+          <div className="flex flex-row justify-between">
+            <div className="flex min-w-0 flex-1 flex-col items-start">
               <span className="text-lg">Score</span>
               <motion.span
-                className="text-5xl font-medium"
+                className="break-all text-[clamp(2.25rem,8vw,3.75rem)] font-medium leading-none"
                 key={points}
-                animate={{
-                  opacity: 1,
-                  scale: [0.7, 1],
-                }}
+                animate={{ opacity: 1, scale: [0.7, 1] }}
                 transition={{ type: "spring", stiffness: 500, damping: 15 }}
               >
                 {points.toLocaleString()}
               </motion.span>
             </div>
-            <div className="flex flex-col items-center">
+
+            <div className="flex min-w-0 flex-1 flex-col items-end">
               <span className="text-lg">Highscore</span>
               <motion.span
-                className="text-5xl font-medium"
-                key={highscore > points ? highscore : points}
-                animate={{
-                  opacity: 1,
-                  scale: [0.7, 1],
-                }}
+                className="break-all text-[clamp(2.25rem,8vw,3.75rem)] font-medium leading-none"
+                key={Math.max(highscore, points)}
+                animate={{ opacity: 1, scale: [0.7, 1] }}
                 transition={{ type: "spring", stiffness: 500, damping: 15 }}
               >
-                {highscore > points
-                  ? highscore.toLocaleString()
-                  : points.toLocaleString()}
+                {Math.max(highscore, points).toLocaleString()}
               </motion.span>
             </div>
           </div>
+
           <div className="flex flex-row justify-between">
             <button
               onClick={getHint}
@@ -435,16 +429,15 @@ export default function Game() {
               Get hint
             </button>
             <button
-              onClick={() => {
-                if (isGameOver(board) || confirm("Are you sure?")) {
-                  resetBoard()
-                }
-              }}
+              onClick={() =>
+                (isGameOver(board) || confirm("Are you sure?")) && resetBoard()
+              }
               className="w-fit rounded-xl bg-gradient-to-bl from-rose-500 to-rose-600 px-6 py-2 text-lg font-medium text-white"
             >
               Reset
             </button>
           </div>
+
           {debug && (
             <div>
               <Button onClick={() => setAutoplay(!autoplay)}>
