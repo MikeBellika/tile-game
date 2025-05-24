@@ -9,6 +9,7 @@
     "lint": "next lint",
     "syncapp": "next build && npx cap sync",
     "sync:android": "next build && npx cap sync android",
+    "open:android": "npx cap open android",
     "test": "vitest"
   },
   "dependencies": {
