@@ -1,6 +1,6 @@
 import { getContrastTextColor, getTileColor, type Tile } from "@/hooks/useBoard"
 import { AnimationSequence, motion, useAnimate } from "framer-motion"
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 function usePrevious<T>(value: T) {
   const ref = useRef<T>()
   useEffect(() => {
@@ -18,6 +18,18 @@ export default function Tile({
   const [scope, animate] = useAnimate()
   const previousValue = usePrevious(tile.value)
   const color = getTileColor(tile)
+  const [supportsHover, setSupportsHover] = useState(false)
+  const tapScale = supportsHover ? 0.98 : 0.94
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(hover: hover) and (pointer: fine)")
+    const updateSupportsHover = () => setSupportsHover(mediaQuery.matches)
+
+    updateSupportsHover()
+    mediaQuery.addEventListener("change", updateSupportsHover)
+
+    return () => mediaQuery.removeEventListener("change", updateSupportsHover)
+  }, [])
 
   useEffect(() => {
     // We only want to animate when the tile changes value from a combo. Not when a new tile lands.
@@ -29,11 +41,11 @@ export default function Tile({
       [scope.current, { scale: 1, border: "none" }],
     ]
     animate(sequence)
-  }, [tile.value])
+  }, [animate, previousValue, scope, tile.value])
   return (
     <motion.div
-      whileHover={{ scale: 1.2 }}
-      whileTap={{ scale: 0.98 }}
+      whileHover={supportsHover ? { scale: 1.2 } : undefined}
+      whileTap={{ scale: tapScale }}
       transition={{ type: "spring", stiffness: 700, damping: 20 }}
       style={{ background: color, color: getContrastTextColor(color) }}
       className={`flex h-full w-full select-none items-center justify-center rounded font-bold text-black transition-colors duration-700 ${
